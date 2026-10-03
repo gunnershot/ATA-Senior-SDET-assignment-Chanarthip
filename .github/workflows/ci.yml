@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Test Suite to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ui
+          - api
+      tag:
+        description: 'Test Tag (e.g. smoke, regression)'
+        required: false
+        type: string
+      threads:
+        description: 'Number of parallel threads'
+        required: false
+        default: '1'
+        type: string
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - sit
+          - uat
+          - prod
+
+jobs:
+  ui-tests:
+    name: UI Tests
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.suite == 'all' || github.event.inputs.suite == 'ui'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui-tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Install Playwright Browsers & Dependencies
+        run: ./mvnw exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
+
+      - name: Set Maven Arguments
+        run: |
+          ARGS="-Dheadless=true"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ -n "${{ github.event.inputs.tag }}" ]]; then
+              ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
+            fi
+            if [[ -n "${{ github.event.inputs.threads }}" ]]; then
+              ARGS="$ARGS -DforkCount=${{ github.event.inputs.threads }}"
+            fi
+            if [[ -n "${{ github.event.inputs.environment }}" ]]; then
+              ARGS="$ARGS -Denv=${{ github.event.inputs.environment }}"
+            fi
+          fi
+          echo "MAVEN_ARGS=$ARGS" >> $GITHUB_ENV
+
+      - name: Run UI tests
+        run: ./mvnw clean test $MAVEN_ARGS
+
+      - name: Generate Single File Allure Report
+        if: always()
+        run: npx allure-commandline generate target/allure-results --single-file -o target/single-html-report --clean
+
+      - name: Upload UI Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-allure-report
+          path: ui-tests/target/single-html-report/index.html
+
+  api-tests:
+    name: API Tests
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.suite == 'all' || github.event.inputs.suite == 'api'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api-tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Set Maven Arguments
+        run: |
+          ARGS=""
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ -n "${{ github.event.inputs.tag }}" ]]; then
+              ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
+            fi
+            if [[ -n "${{ github.event.inputs.threads }}" ]]; then
+              ARGS="$ARGS -DforkCount=${{ github.event.inputs.threads }}"
+            fi
+            if [[ -n "${{ github.event.inputs.environment }}" ]]; then
+              ARGS="$ARGS -Denv=${{ github.event.inputs.environment }}"
+            fi
+          fi
+          echo "MAVEN_ARGS=$ARGS" >> $GITHUB_ENV
+
+      - name: Run API tests
+        env:
+          GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
+        run: ./mvnw clean test $MAVEN_ARGS
+
+      - name: Generate Single File Allure Report
+        if: always()
+        run: npx allure-commandline generate target/allure-results --single-file -o target/single-html-report --clean
+
+      - name: Upload API Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-allure-report
+          path: api-tests/target/single-html-report/index.html

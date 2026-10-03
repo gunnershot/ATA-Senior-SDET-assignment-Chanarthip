@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Build output
+target/
+
+# Allure (generated locally per run)
+ui-tests/allure-results/
+ui-tests/allure-report/
+ui-tests/allure-history/
+ui-tests/allure-archive/
+ui-tests/.allure/
+api-tests/allure-results/
+api-tests/.allure/
+api-tests/logs/
+
+# Bundled tooling / downloads
+ui-tests/jdk-17.0.10+7/
+ui-tests/apache-maven-3.9.6/
+ui-tests/*.zip
+
+# Ignore old broken workflow
+.github/workflows/ci-broken.yml
