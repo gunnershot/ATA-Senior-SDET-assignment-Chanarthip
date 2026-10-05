@@ -11,6 +11,8 @@ import com.assignment.api.models.UserRequest;
 import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
@@ -26,6 +28,7 @@ public class UserClient {
         PrintStream logStream = IoBuilder.forLogger(log).setLevel(Level.INFO).buildPrintStream();
         
         return RestAssured.given()
+                .config(RestAssuredConfig.config().logConfig(LogConfig.logConfig().blacklistHeader("Authorization")))
                 .baseUri(Config.getBaseUrl())
                 .header("Authorization", "Bearer " + Config.getApiToken())
                 .contentType(ContentType.JSON)
