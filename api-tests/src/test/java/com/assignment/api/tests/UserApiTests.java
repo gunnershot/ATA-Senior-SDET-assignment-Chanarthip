@@ -311,5 +311,21 @@ public class UserApiTests extends BaseApiTest {
             .as("Error message should indicate " + missingField + " is blank")
             .contains("can't be blank");
     }
+
+    @Test
+    @Tag("Regression")
+    @Tag("Negative")
+    @DisplayName("14. POST /users - Error on invalid authentication token")
+    @Description("Verify that accessing protected endpoints with an invalid or malformed token returns 401")
+    public void testCreateUserWithInvalidToken() {
+        UserRequest randomUser = DataGenerator.generateRandomUser();
+        String invalidToken = "invalid_token_" + System.currentTimeMillis();
+
+        Response response = userClient.createUserWithCustomToken(randomUser, invalidToken);
+        assertThat(response.statusCode()).isEqualTo(401);
+
+        GenericError error = response.as(GenericError.class);
+        assertThat(error.getMessage()).contains("Invalid token");
+    }
 }
 

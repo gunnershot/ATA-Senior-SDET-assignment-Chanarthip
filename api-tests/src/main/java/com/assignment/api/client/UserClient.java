@@ -44,6 +44,16 @@ public class UserClient {
                 .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new MaskedAllureRestAssured());
     }
 
+    private RequestSpecification getRequestSpecWithToken(String token) {
+        PrintStream logStream = IoBuilder.forLogger(log).setLevel(Level.INFO).buildPrintStream();
+        return RestAssured.given()
+                .config(RestAssuredConfig.config().logConfig(LogConfig.logConfig().blacklistHeader("Authorization")))
+                .baseUri(Config.getBaseUrl())
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new MaskedAllureRestAssured());
+    }
+
     @Step("Create a new user")
     public Response createUser(UserRequest user) {
         return getRequestSpec()
@@ -55,6 +65,14 @@ public class UserClient {
     @Step("Create user without token")
     public Response createUserWithoutToken(UserRequest user) {
         return getRequestSpecWithoutToken()
+                .body(user)
+                .when()
+                .post(USERS_ENDPOINT);
+    }
+
+    @Step("Create user with custom token: {token}")
+    public Response createUserWithCustomToken(UserRequest user, String token) {
+        return getRequestSpecWithToken(token)
                 .body(user)
                 .when()
                 .post(USERS_ENDPOINT);
