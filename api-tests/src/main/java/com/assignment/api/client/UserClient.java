@@ -11,6 +11,7 @@ import com.assignment.api.models.UserRequest;
 import io.qameta.allure.Step;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
+import com.assignment.api.utils.MaskedAllureRestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -32,7 +33,7 @@ public class UserClient {
                 .baseUri(Config.getBaseUrl())
                 .header("Authorization", "Bearer " + Config.getApiToken())
                 .contentType(ContentType.JSON)
-                .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new AllureRestAssured());
+                .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new MaskedAllureRestAssured());
     }
     
     private RequestSpecification getRequestSpecWithoutToken() {
@@ -40,7 +41,7 @@ public class UserClient {
         return RestAssured.given()
                 .baseUri(Config.getBaseUrl())
                 .contentType(ContentType.JSON)
-                .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new AllureRestAssured());
+                .filters(new RequestLoggingFilter(logStream), new ResponseLoggingFilter(logStream), new MaskedAllureRestAssured());
     }
 
     @Step("Create a new user")
