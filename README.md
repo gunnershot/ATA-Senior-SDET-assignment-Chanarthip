@@ -18,6 +18,7 @@ Enterprise-grade Test Automation Framework for **Part 1: UI Automation** on [Sau
 - [Observed Application Defects & Diagnostic Strategy](#observed-application-defects--diagnostic-strategy)
 - [Senior SDET Architectural Decisions](#senior-sdet-architectural-decisions)
 - [Assumptions & Surfaced Ambiguities](#assumptions--surfaced-ambiguities)
+- [Part 3: CI/CD Pipeline Fixes & Extensions](#part-3-cicd-pipeline-fixes--extensions)
 - [Part 4: AI-Assisted Workflow Notes](#part-4-ai-assisted-workflow-notes)
 
 ---
@@ -290,6 +291,30 @@ Documented comprehensively in [`test-coverage/assumptions.md`](test-coverage/ass
 - **Assumption A4 (Empty Cart Checkout):** Classified as an observed application defect rather than intentional behavior.
 - **Assumption A5 (Whitespace Sanitization):** Form inputs lack `.trim()` sanitization, classified as an input validation defect.
 - **Assumption A6 (State Persistence):** Cart persistence across page reload (`F5`) is client-side and verified as an edge case.
+
+## Part 3: CI/CD Pipeline Fixes & Extensions
+
+The `starter-kit/ci-broken.yml` file contained several issues that prevented the pipeline from running correctly and reliably reporting test results. The following bugs were identified and fixed:
+
+1. **Missing Code Checkout:** The starter pipeline lacked `actions/checkout@v4`, causing the runner to fail immediately with missing project files.
+   * *Fix:* Added `actions/checkout@v4` as the initial step in each test job.
+2. **Incompatible Java Version:** The starter pipeline used Java 8, whereas both test suites rely on modern Java 17 features.
+   * *Fix:* Upgraded `actions/setup-java@v4` to `java-version: '17'`.
+3. **Missing Working Directories:** Maven commands were executed at repository root rather than targeting `ui-tests` and `api-tests` modules.
+   * *Fix:* Configured `defaults.run.working-directory` explicitly for each job.
+4. **Masked UI Test Failures:** The UI test command included `|| true`, suppressing legitimate test failures and falsely greening builds.
+   * *Fix:* Removed `|| true` to ensure builds fail reliably when assertions fail.
+5. **System Maven Dependency:** Relied on global `mvn` which may not match wrapper versions.
+   * *Fix:* Standardized on `./mvnw` across both UI and API test jobs.
+6. **Missing Playwright OS Dependencies:** Headless browser execution failed on Linux runners due to missing browser binaries and OS-level libraries.
+   * *Fix:* Added `./mvnw exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"` step.
+7. **Playwright Headless Override:** Local default runs headfully (`headless: false` in `playwright.json`), which crashes on Linux runners without an X display.
+   * *Fix:* Passed `-Dheadless=true` dynamically during CI UI test execution.
+8. **Missing API Secrets:** API test execution was missing the `GOREST_API_TOKEN` environment variable.
+   * *Fix:* Mapped `GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}` via GitHub Secrets.
+9. **Allure Result Directory Misalignment:** UI tests saved raw results to project base instead of `target/allure-results`.
+   * *Fix:* Standardized `ui-tests/pom.xml` to output to `${project.build.directory}/allure-results`.
+10. **Pipeline Parameterization & Parallel Execution:** Extended workflow with `workflow_dispatch` inputs supporting suite selection (`all`, `ui`, `api`), tag filtering, environment configuration, parallel execution (`threads`), and dynamic Log4j2 verbosity toggles.
 
 ---
 
