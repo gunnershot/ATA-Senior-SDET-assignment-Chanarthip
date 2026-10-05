@@ -21,3 +21,5 @@ ui-tests/*.zip
 
 # Ignore old broken workflow
 .github/workflows/ci-broken.yml
+.idea
+.vscode
