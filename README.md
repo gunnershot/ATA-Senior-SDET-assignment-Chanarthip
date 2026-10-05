@@ -85,9 +85,9 @@ ATA-Senior-SDET-assignment-Chanarthip/
 │   │       ├── java/com/assignment/ui/     # Test Execution Layer
 │   │       │   ├── LoginTest.java          # UI-01 to UI-06 (Happy, Negative, Boundary, Edge)
 │   │       │   ├── CartTest.java           # UI-07 to UI-11 (Add, Remove, State Retention)
-│   │       │   ├── CheckoutTest.java       # UI-12 to UI-17 (E2E, Integrity, Validation, Defect)
-│   │       │   ├── ProblemUserTest.java    # UI-18, UI-19 (Diagnostic Defect Assertions)
-│   │       │   └── PerformanceGlitchUserTest.java # UI-20 (Resilience & Latency SLA)
+│   │       │   ├── CheckoutTest.java       # UI-12 to UI-19 (E2E, Catalog Integrity, PDF, Validation, Defects)
+│   │       │   ├── ProblemUserTest.java    # UI-20, UI-21 (Diagnostic Defect Assertions)
+│   │       │   └── PerformanceGlitchUserTest.java # UI-22 (Resilience & Latency SLA)
 │   │       └── resources/
 │   │           ├── playwright.json         # Environment Settings (Default: headless = true)
 │   │           └── junit-platform.properties# JUnit 5 Execution settings
@@ -227,7 +227,7 @@ In the GitHub Actions CI pipeline (`.github/workflows/ci.yml`), tests can be tri
 The included `run-tests.ps1` runner automatically wires the bundled JDK/Maven, executes tests, archives raw results, and builds the self-contained Single-File Allure Report:
 
 ```powershell
-# Run all 20 Scenarios (Headless by default) + auto-generate Allure report
+# Run all 22 Scenarios (Headless by default) + auto-generate Allure report
 .\run-tests.ps1
 
 # Run in parallel across 3 JVM fork processes
@@ -272,7 +272,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **21 automated scenarios** across 5 feature classes:
+The suite covers **22 automated scenarios** across 5 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -282,21 +282,22 @@ The suite covers **21 automated scenarios** across 5 feature classes:
 | **UI-04** | `LoginTest` | `shouldDisplayRequiredErrorWhenUsernameIsOmitted` | Boundary | P1 | Validates required username: `Epic sadface: Username is required`. | ✅ PASS |
 | **UI-05** | `LoginTest` | `shouldDisplayRequiredErrorWhenPasswordIsOmitted` | Boundary | P1 | Validates required password: `Epic sadface: Password is required`. | ✅ PASS |
 | **UI-06** | `LoginTest` | `shouldPreventAccessAndRedirectToLoginWhenVisitingInventoryWithoutAuthentication` | Edge | P0 | Direct access to `/inventory.html` redirects to `/` with error notice. | ✅ PASS |
-| **UI-07** | `CartTest` | `shouldUpdateBadgeAndCartWhenAddingOneItem` | Happy | P0 | Adding 1 item toggles button to Remove and sets cart badge to `1`. | ✅ PASS |
-| **UI-08** | `CartTest` | `shouldUpdateBadgeWhenAddingTwoDifferentItems` | Boundary | P0 | Adding 2 distinct items increments badge to `2`. | ✅ PASS |
-| **UI-09** | `CartTest` | `shouldRemoveItemFromInventoryAndClearBadge` | Happy | P1 | Clicking Remove on inventory page removes badge from DOM. | ✅ PASS |
-| **UI-10** | `CartTest` | `shouldRemoveLastItemInCartAndClearBadge` | Boundary | P1 | Removing the last item in `/cart.html` clears the badge. | ✅ PASS |
-| **UI-11** | `CartTest` | `shouldPersistCartItemsAfterPageRefresh` | Edge | P1 | Session persistence: cart items and badge persist across page reload (`F5`). | ✅ PASS |
-| **UI-12** | `CheckoutTest` | `shouldCompleteCheckoutWithFullInformation` | E2E | P0 | Full checkout journey ends with `Thank you for your order!`. | ✅ PASS |
-| **UI-13** | `CheckoutTest` | `shouldEnforceRequiredFieldsAtCheckoutInfo` | Negative | P1 | Validates First Name, Last Name, and Postal Code sequentially. | ✅ PASS |
-| **UI-14** | `CheckoutTest` | `shouldCalculateAccurateTotalForMultipleItems` | Integrity | P0 | Exact arithmetic validation: Subtotal ($39.98) + Tax ($3.20) = Total ($43.18). | ✅ PASS |
-| **UI-15** | `CheckoutTest` | `shouldReturnToCartWhenCancelingCheckoutInfo` | Edge | P1 | Canceling checkout information step returns user to `/cart.html` safely. | ✅ PASS |
-| **UI-16** | `CheckoutTest` | `shouldPreventCheckoutWithEmptyCart` | Defect / Boundary | P1 | **Observed Defect A4:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
-| **UI-17** | `CheckoutTest` | `shouldEnforceWhitespaceValidationAtCheckoutInfo` | Defect / Edge | P1 | **Observed Defect A5:** Whitespace (`"   "`) bypasses required field check. | ✅ PASS (Defect Asserted) |
-| **UI-18** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P1 | **Observed Defect:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
-| **UI-19** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P1 | **Observed Defect:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
-| **UI-20** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
-| **UI-21** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
+| **UI-07** | `CartTest` | `shouldIncrementBadgeAndDisplayItemInCartWhenSingleItemIsAdded` | Happy | P0 | Adding 1 item toggles button to Remove, sets cart badge to `1`, and asserts catalog description. | ✅ PASS |
+| **UI-08** | `CartTest` | `shouldIncrementBadgeToTwoAndListDistinctItemsWhenAddingTwoDifferentItems` | Boundary | P0 | Adding 2 distinct items increments badge to `2` without item duplication. | ✅ PASS |
+| **UI-09** | `CartTest` | `shouldRemoveItemFromCartAndClearBadgeWhenRemovedFromInventoryPage` | Happy | P1 | Clicking Remove on inventory page removes badge from DOM and empties cart. | ✅ PASS |
+| **UI-10** | `CartTest` | `shouldEmptyCartAndHideBadgeWhenRemovingLastItemFromCartPage` | Boundary | P1 | Removing the last item in `/cart.html` clears the badge and renders cart empty. | ✅ PASS |
+| **UI-11** | `CartTest` | `shouldRetainCartStateWhenPageIsRefreshed` | Edge | P1 | Session persistence: cart items and badge persist across page reload (`F5`). | ✅ PASS |
+| **UI-12** | `CheckoutTest` | `shouldCompleteOrderSuccessfullyWhenCheckingOutWithValidInformation` | E2E | P0 | Full checkout journey ends with `Thank you for your order!`. | ✅ PASS |
+| **UI-13** | `CheckoutTest` | `shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout` | Integrity / E2E | P0 | Adds all 6 catalog items, verifies dynamic subtotal ($129.94), 8% tax ($10.40), total ($140.34) and checks order PDF receipt. | ✅ PASS |
+| **UI-14** | `CheckoutTest` | `shouldCalculateSubtotalAndTotalAccuratelyWhenCheckingOutTwoItems` | Integrity | P0 | Exact arithmetic validation: Subtotal ($39.98) + Tax ($3.20) = Total ($43.18). | ✅ PASS |
+| **UI-15** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
+| **UI-16** | `CheckoutTest` | `shouldNavigateBackToCartAndPreserveItemsWhenCancelingAtInformationStep` | Edge | P1 | Canceling checkout information step returns user to `/cart.html` with cart items intact. | ✅ PASS |
+| **UI-17** | `CheckoutTest` | `shouldDisplayRequiredValidationErrorWhenAnyCheckoutFieldIsMissing` | Negative | P1 | Validates First Name, Last Name, and Postal Code sequentially. | ✅ PASS |
+| **UI-18** | `CheckoutTest` | `shouldVerifySystemPermitsCheckoutWhenCartIsEmpty` | Defect / Boundary | P1 | **Observed Defect A4:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
+| **UI-19** | `CheckoutTest` | `shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A5:** Whitespace (`"   "`) bypasses required field check. | ✅ PASS (Defect Asserted) |
+| **UI-20** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P1 | **Observed Defect:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
+| **UI-21** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P1 | **Observed Defect:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
+| **UI-22** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
 
 ---
 
@@ -307,16 +308,16 @@ The assignment brief instructs:
 
 In accordance with this directive, defects are neither ignored nor masked. Strict assertions verify the exact anomalous state, accompanied by Allure diagnostic logs:
 
-1. **Defect UI-16 (Empty Cart Checkout Allowed):**
+1. **Defect UI-18 (Empty Cart Checkout Allowed):**
    - *Expected:* Checkout should be blocked if the cart contains 0 items.
    - *Observed & Asserted:* SauceDemo permits advancing through Overview to Complete ($0.00 total) without validation. Asserted strictly and tagged with `@Issue("A4")`.
-2. **Defect UI-17 (Whitespace Validation Bypass):**
+2. **Defect UI-19 (Whitespace Validation Bypass):**
    - *Expected:* Pure whitespace (`"   "`) in required fields should trigger validation errors.
    - *Observed & Asserted:* Whitespace bypasses validation and navigates to the Overview screen. Asserted and tagged with `@Issue("A5")`.
-3. **Defect UI-18 (`problem_user` Remove Button Defect):**
+3. **Defect UI-20 (`problem_user` Remove Button Defect):**
    - *Expected:* Clicking "Remove" must remove the item and clear the cart badge.
    - *Observed & Asserted:* On `problem_user`, the remove click handler fails silently; the badge remains permanently stuck at `"1"`.
-4. **Defect UI-19 (`problem_user` Input Misrouting):**
+4. **Defect UI-21 (`problem_user` Input Misrouting):**
    - *Expected:* First Name and Last Name inputs must accept independent values.
    - *Observed & Asserted:* On `problem_user`, typing into `lastName` overwrites `firstName`, leaving `lastName` blank and triggering an `Error: Last Name is required`.
 

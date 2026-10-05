@@ -19,14 +19,14 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 class ProblemUserTest extends BaseTest {
 
     @Test
-    @Tag("UI-18")
+    @Tag("UI-20")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-01")
     @Story("Problem User Cart Defect")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-18] Should document diagnostic defect where clicking remove fails to decrement badge for problem_user")
+    @DisplayName("[UI-20] Should document diagnostic defect where clicking remove fails to decrement badge for problem_user")
     void shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem() {
         InventoryPage inventory = loginAs(User.PROBLEM).add(Product.BACKPACK);
         assertThat(inventory.cartBadge()).hasText("1");
@@ -40,14 +40,14 @@ class ProblemUserTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-19")
+    @Tag("UI-21")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-02")
     @Story("Problem User Form Defect")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-19] Should document diagnostic defect where typing last name misroutes and overwrites first name for problem_user")
+    @DisplayName("[UI-21] Should document diagnostic defect where typing last name misroutes and overwrites first name for problem_user")
     void shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation() {
         CartPage cart = cartWith(User.PROBLEM, Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
@@ -66,4 +66,3 @@ class ProblemUserTest extends BaseTest {
         Allure.step("DISCOVERED DEFECT: problem_user checkout input fields are miswired. Typing into last name sets first name to 'Doe' and leaves last name blank.");
     }
 }
-

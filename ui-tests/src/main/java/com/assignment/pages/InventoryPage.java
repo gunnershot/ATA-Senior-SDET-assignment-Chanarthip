@@ -18,6 +18,17 @@ public class InventoryPage extends BasePage {
         return inventoryList;
     }
 
+    public Locator itemName(Product product) {
+        return page.getByTestId("inventory-item-name")
+                .filter(new Locator.FilterOptions().setHasText(product.displayName()));
+    }
+
+    @Step("Click product name {product}")
+    public ProductDetailsPage openProductDetails(Product product) {
+        itemName(product).click();
+        return new ProductDetailsPage(page);
+    }
+
     public Locator addButton(Product product) {
         return page.getByTestId("add-to-cart-" + product.slug());
     }
