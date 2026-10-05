@@ -47,7 +47,6 @@ public class UserClient {
     private RequestSpecification getRequestSpecWithToken(String token) {
         PrintStream logStream = IoBuilder.forLogger(log).setLevel(Level.INFO).buildPrintStream();
         return RestAssured.given()
-                .config(RestAssuredConfig.config().logConfig(LogConfig.logConfig().blacklistHeader("Authorization")))
                 .baseUri(Config.getBaseUrl())
                 .header("Authorization", "Bearer " + token)
                 .contentType(ContentType.JSON)

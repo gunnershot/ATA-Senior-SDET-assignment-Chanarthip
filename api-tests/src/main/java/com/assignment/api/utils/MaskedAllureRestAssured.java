@@ -1,5 +1,6 @@
 package com.assignment.api.utils;
 
+import com.assignment.api.config.Config;
 import io.qameta.allure.attachment.DefaultAttachmentProcessor;
 import io.qameta.allure.attachment.FreemarkerAttachmentRenderer;
 import io.qameta.allure.attachment.http.HttpRequestAttachment;
@@ -39,8 +40,16 @@ public class MaskedAllureRestAssured implements OrderedFilter {
         final String url = requestSpec.getURI();
 
         Map<String, String> headers = toMapConverter(requestSpec.getHeaders());
-        if (headers.containsKey("Authorization")) {
-            headers.put("Authorization", "Bearer [ BLACKLISTED ]");
+        String authHeader = headers.get("Authorization");
+        if (authHeader != null) {
+            String realToken = null;
+            try {
+                realToken = Config.getApiToken();
+            } catch (Exception ignored) {
+            }
+            if (realToken != null && !realToken.isBlank() && authHeader.contains(realToken)) {
+                headers.put("Authorization", "Bearer [ BLACKLISTED ]");
+            }
         }
 
         final HttpRequestAttachment.Builder requestAttachmentBuilder = create(requestAttachmentName, url)
