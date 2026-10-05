@@ -35,6 +35,7 @@ class CartTest extends BaseTest {
         CartPage cart = inventory.openCart();
         assertThat(cart.items()).hasCount(1);
         assertThat(cart.itemNames()).hasText(new String[]{Product.BACKPACK.displayName()});
+        assertThat(cart.itemDescription(Product.BACKPACK)).hasText(Product.BACKPACK.description());
     }
 
     @Test
