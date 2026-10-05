@@ -4,7 +4,6 @@ import com.assignment.base.BaseTest;
 
 import com.assignment.models.CheckoutInfo;
 import com.assignment.models.Product;
-import com.assignment.models.User;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -44,7 +43,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @DisplayName("[UI-12] Should complete checkout order and display confirmation header when submitting valid customer information")
     void shouldCompleteOrderSuccessfullyWhenCheckingOutWithValidInformation() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
 
         CheckoutOverviewPage overview = infoPage
@@ -69,7 +68,7 @@ class CheckoutTest extends BaseTest {
         CheckoutInfo customer = CheckoutInfo.valid();
 
         // 1. Add all 6 products in catalog to cart
-        CartPage cart = cartWith(User.STANDARD, Product.values());
+        CartPage cart = cartWith(Product.values());
         assertThat(cart.items()).hasCount(Product.values().length);
 
         // 2. Proceed to Checkout Overview
@@ -148,7 +147,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @DisplayName("[UI-14] Should verify price integrity where subtotal equals sum of item prices and total equals subtotal plus tax")
     void shouldCalculateSubtotalAndTotalAccuratelyWhenCheckingOutTwoItems() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK, Product.BIKE_LIGHT);
+        CartPage cart = cartWith(Product.BACKPACK, Product.BIKE_LIGHT);
 
         CheckoutOverviewPage overview = cart.checkout()
                 .fill(CheckoutInfo.valid())
@@ -188,7 +187,7 @@ class CheckoutTest extends BaseTest {
     @DisplayName("[UI-15] Should generate and verify PDF order receipt contains accurate customer and order details upon checkout completion")
     void shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion() {
         CheckoutInfo customer = CheckoutInfo.valid();
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         CheckoutCompletePage complete = cart.checkout()
                 .fill(customer)
                 .continueToOverview()
@@ -241,7 +240,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-16] Should return to cart page with items intact when canceling checkout at information step (Assumption A3)")
     void shouldNavigateBackToCartAndPreserveItemsWhenCancelingAtInformationStep() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
 
         CartPage returnedCart = infoPage.cancel();
@@ -264,7 +263,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-17] Should display specific field validation error when First Name, Last Name, or Postal Code is omitted")
     void shouldDisplayRequiredValidationErrorWhenAnyCheckoutFieldIsMissing() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
 
         // 1. Missing First Name
@@ -297,7 +296,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-18] Should document observed defect where system permits completing checkout with an empty cart (Defect A4)")
     void shouldVerifySystemPermitsCheckoutWhenCartIsEmpty() {
-        loginAs(User.STANDARD);
+        login();
         CartPage cart = new CartPage(page);
         page.navigate(CONFIG.getBaseUrl() + "/cart.html");
 
@@ -326,7 +325,7 @@ class CheckoutTest extends BaseTest {
     @Severity(SeverityLevel.MINOR)
     @DisplayName("[UI-19] Should document observed defect where whitespace-only fields bypass validation to overview page (Defect A5)")
     void shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
 
         infoPage.fill(new CheckoutInfo("   ", "   ", "   "));

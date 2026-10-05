@@ -34,7 +34,7 @@ class ProductDetailsTest extends BaseTest {
         Product targetProduct = Product.BACKPACK;
 
         // 1. Log in and arrive at Inventory
-        InventoryPage inventory = loginAs(User.STANDARD);
+        InventoryPage inventory = login();
         assertThat(page).hasURL(Pattern.compile(".*/inventory\\.html$"));
 
         // 2. Click inventory-item-name on inventory page

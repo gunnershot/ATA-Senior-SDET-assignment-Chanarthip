@@ -50,6 +50,10 @@
     Runs all P0 critical tests on Firefox.
 
 .EXAMPLE
+    .\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "problem_user"
+    Runs UI-13 injecting problem_user to showcase defect discovery and failure reporting in Allure.
+
+.EXAMPLE
     .\run-tests.ps1 -ReportOnly
     Generates the latest Allure report from existing results without re-executing tests.
 #>
@@ -59,6 +63,7 @@ param(
     [string]$Test       = "",
     [string]$Tag        = "",
     [string]$Browser    = "",
+    [string]$User       = "",
     [switch]$Headed,
     [switch]$Clean,
     [switch]$ReportOnly,
@@ -147,6 +152,13 @@ if (-not $ReportOnly) {
         Write-Host " Target [Browser]: $Browser" -ForegroundColor Yellow
     }
 
+    if ($User -ne "") {
+        $mvnArgs += "-Duser=$User"
+        Write-Host " User Context   : $User (Injected via -User)" -ForegroundColor Yellow
+    } else {
+        Write-Host " User Context   : standard_user (Default)" -ForegroundColor Gray
+    }
+
     if ($Headed) {
         $mvnArgs += "-Dheadless=false"
         Write-Host " Execution Mode  : Headed (Browser Window Visible)" -ForegroundColor Magenta
@@ -160,7 +172,7 @@ if (-not $ReportOnly) {
     }
 
     if ($Test -eq "" -and $Tag -eq "") {
-        Write-Host " Target Suite    : All 22 Scenarios across 5 Test Classes" -ForegroundColor Yellow
+        Write-Host " Target Suite    : All 23 Scenarios across 6 Test Classes" -ForegroundColor Yellow
     }
     Write-Host ""
 

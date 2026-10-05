@@ -245,11 +245,33 @@ The included `run-tests.ps1` runner automatically wires the bundled JDK/Maven, e
 # Run by priority or category tag (e.g. P0, P1, Happy, Negative, Diagnostic)
 .\run-tests.ps1 -Tag "P0"
 
-# Generate report from latest results without re-executing tests
-.\run-tests.ps1 -ReportOnly
+# Dynamic User Injection (Showcase defect detection by injecting problem_user)
+.\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "problem_user"
 
 # Execute headlessly without launching the HTML report in a browser window (Ideal for automated scripts)
 .\run-tests.ps1 -NoOpen
+```
+
+---
+
+### 4. Dynamic User Injection & Defect Showcase (Evaluation / Demonstration)
+
+The test framework supports runtime **User Persona Injection** without touching test source code:
+- **Default Execution:** Test scenarios utilize `standard_user` loaded from `playwright.json` (`"targetUser": "standard_user"`).
+- **Runtime Injection via CLI:** Inject any user persona dynamically via `-User <username>` (PowerShell) or `-Duser=<username>` (Maven CLI). Supported personas: `standard_user`, `problem_user`, `performance_glitch_user`, `locked_out_user`.
+
+#### Defect Showcase Scenario (`UI-13` with `problem_user`):
+To showcase that our test suite actively catches application defects, halts flawed checkout flows, and attaches rich diagnostics (Full-page Screenshots and Playwright Traces) to Allure reports:
+
+```powershell
+# Step 1: Run UI-13 injecting problem_user (Demonstrates defect detection)
+.\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "problem_user"
+
+# Step 2: The test cleanly fails because problem_user cannot add all 6 items to the cart.
+# Allure generates an interactive report with screenshot and trace attached.
+
+# Step 3: Rerun with standard_user to demonstrate the passing baseline
+.\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "standard_user"
 ```
 
 ---
@@ -272,7 +294,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **22 automated scenarios** across 5 feature classes:
+The suite covers **23 automated scenarios** across 6 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -298,6 +320,7 @@ The suite covers **22 automated scenarios** across 5 feature classes:
 | **UI-20** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P1 | **Observed Defect:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
 | **UI-21** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P1 | **Observed Defect:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
 | **UI-22** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
+| **UI-23** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingInventoryItemName` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
 
 ---
 
@@ -336,8 +359,10 @@ In accordance with this directive, defects are neither ignored nor masked. Stric
    - All Page Objects locate interactive components via `page.getByTestId(...)` rather than fragile CSS classes or XPath hierarchies.
 4. **High-Precision Financial Math:**
    - In `CheckoutOverviewPage` (UI-14), currency calculations strictly employ `java.math.BigDecimal` with `RoundingMode.HALF_UP` to prevent IEEE 754 floating-point drift (e.g., `0.1 + 0.2 != 0.3`).
-5. **Dynamic Tracing and Artifact Capture:**
-   - Tracing starts dynamically in `@BeforeEach`. `TestFailureListener` captures and stores the trace only when a failure occurs, optimizing disk usage while preserving granular debugging data.
+5. **Automatic Screenshot & Trace on Assertion Failure:**
+   - Implemented via `AfterTestExecutionCallback` in `TestFailureListener` to guarantee capture immediately when an assertion fails before `@AfterEach` context teardown.
+   - Automatically captures full-page screenshot saved to `target/screenshots/<testName>-failure.png` and attaches PNG screenshot + Playwright trace ZIP directly to the Allure report.
+   - On passing tests, traces are cleanly stopped without writing to disk, minimizing CI storage footprint.
 
 ---
 

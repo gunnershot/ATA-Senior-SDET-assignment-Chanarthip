@@ -3,7 +3,6 @@ package com.assignment.ui;
 import com.assignment.base.BaseTest;
 
 import com.assignment.models.Product;
-import com.assignment.models.User;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
@@ -29,7 +28,7 @@ class CartTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @DisplayName("[UI-07] Should update cart badge to 1 and reflect chosen item in cart when adding single item")
     void shouldIncrementBadgeAndDisplayItemInCartWhenSingleItemIsAdded() {
-        InventoryPage inventory = loginAs(User.STANDARD).add(Product.BACKPACK);
+        InventoryPage inventory = login().add(Product.BACKPACK);
         assertThat(inventory.cartBadge()).hasText("1");
 
         CartPage cart = inventory.openCart();
@@ -47,7 +46,7 @@ class CartTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     @DisplayName("[UI-08] Should update cart badge to 2 and list distinct items without duplication when adding two different products")
     void shouldIncrementBadgeToTwoAndListDistinctItemsWhenAddingTwoDifferentItems() {
-        InventoryPage inventory = loginAs(User.STANDARD)
+        InventoryPage inventory = login()
                 .add(Product.BACKPACK)
                 .add(Product.BIKE_LIGHT);
         assertThat(inventory.cartBadge()).hasText("2");
@@ -68,7 +67,7 @@ class CartTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-09] Should remove item from cart and clear badge count when removing item from inventory page")
     void shouldRemoveItemFromCartAndClearBadgeWhenRemovedFromInventoryPage() {
-        InventoryPage inventory = loginAs(User.STANDARD).add(Product.BACKPACK);
+        InventoryPage inventory = login().add(Product.BACKPACK);
         assertThat(inventory.cartBadge()).hasText("1");
 
         inventory.remove(Product.BACKPACK);
@@ -88,7 +87,7 @@ class CartTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-10] Should render cart empty and hide cart badge when removing last item directly from cart page")
     void shouldEmptyCartAndHideBadgeWhenRemovingLastItemFromCartPage() {
-        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CartPage cart = cartWith(Product.BACKPACK);
         assertThat(cart.items()).hasCount(1);
 
         cart.remove(Product.BACKPACK);
@@ -105,7 +104,7 @@ class CartTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     @DisplayName("[UI-11] Should retain added cart items across page refresh without state loss (Assumption A2)")
     void shouldRetainCartStateWhenPageIsRefreshed() {
-        InventoryPage inventory = loginAs(User.STANDARD).add(Product.BACKPACK);
+        InventoryPage inventory = login().add(Product.BACKPACK);
         assertThat(inventory.cartBadge()).hasText("1");
 
         page.reload();
@@ -114,4 +113,3 @@ class CartTest extends BaseTest {
         assertThat(inventory.removeButton(Product.BACKPACK)).isVisible();
     }
 }
-

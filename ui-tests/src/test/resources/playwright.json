@@ -4,5 +4,6 @@
   "slowMo": 100,
   "baseUrl": "https://www.saucedemo.com",
   "defaultTimeoutMs": 10000,
-  "performanceTimeoutMs": 10000
+  "performanceTimeoutMs": 10000,
+  "targetUser": "standard_user"
 }

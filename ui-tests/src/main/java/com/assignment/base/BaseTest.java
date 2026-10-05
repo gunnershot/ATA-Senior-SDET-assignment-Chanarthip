@@ -104,8 +104,20 @@ public abstract class BaseTest {
 
     // ---- Shared arrange helpers ----
 
+    protected User defaultUser() {
+        return CONFIG.getTargetUser();
+    }
+
+    protected InventoryPage login() {
+        return loginAs(defaultUser());
+    }
+
     protected InventoryPage loginAs(User user) {
         return loginPage.loginAs(user);
+    }
+
+    protected CartPage cartWith(Product... products) {
+        return cartWith(defaultUser(), products);
     }
 
     protected CartPage cartWith(User user, Product... products) {

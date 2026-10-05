@@ -27,6 +27,7 @@ public final class PlaywrightConfig {
     private String baseUrl = "https://www.saucedemo.com";
     private double defaultTimeoutMs = 10_000;
     private double performanceTimeoutMs = 10_000;
+    private String targetUser = "standard_user";
 
     public static synchronized PlaywrightConfig get() {
         if (instance == null) {
@@ -49,6 +50,7 @@ public final class PlaywrightConfig {
         headless = Boolean.parseBoolean(override("headless", String.valueOf(headless)));
         slowMo = Integer.parseInt(override("slowMo", String.valueOf(slowMo)));
         baseUrl = override("baseUrl", baseUrl);
+        targetUser = override("targetUser", override("user", targetUser));
     }
 
     private static String override(String key, String current) {
@@ -65,6 +67,8 @@ public final class PlaywrightConfig {
     public String getBaseUrl() { return baseUrl.replaceAll("/+$", ""); }
     public double getDefaultTimeoutMs() { return defaultTimeoutMs; }
     public double getPerformanceTimeoutMs() { return performanceTimeoutMs; }
+    public String getTargetUsername() { return targetUser; }
+    public com.assignment.models.User getTargetUser() { return com.assignment.models.User.fromUsername(targetUser); }
 
     // Setters are used by Jackson only.
     public void setBrowser(String browser) { this.browser = browser; }
@@ -73,5 +77,6 @@ public final class PlaywrightConfig {
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
     public void setDefaultTimeoutMs(double v) { this.defaultTimeoutMs = v; }
     public void setPerformanceTimeoutMs(double v) { this.performanceTimeoutMs = v; }
+    public void setTargetUser(String targetUser) { this.targetUser = targetUser; }
 }
 

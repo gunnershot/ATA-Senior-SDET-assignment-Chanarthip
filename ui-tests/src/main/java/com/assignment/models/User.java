@@ -22,5 +22,17 @@ public enum User {
     public String password() {
         return Credentials.password();
     }
+
+    public static User fromUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return STANDARD;
+        }
+        for (User u : values()) {
+            if (u.username.equalsIgnoreCase(username) || u.name().equalsIgnoreCase(username)) {
+                return u;
+            }
+        }
+        throw new IllegalArgumentException("Unknown user: " + username + ". Supported accounts: standard_user, locked_out_user, problem_user, performance_glitch_user");
+    }
 }
 
