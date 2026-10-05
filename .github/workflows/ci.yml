@@ -35,6 +35,11 @@ on:
           - sit
           - uat
           - prod
+      enable_logs:
+        description: 'Enable verbose HTTP INFO logs (default off)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   ui-tests:
@@ -109,6 +114,11 @@ jobs:
       - name: Set Maven Arguments
         run: |
           ARGS=""
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.enable_logs }}" == "true" ]]; then
+            ARGS="$ARGS -DlogLevel=info"
+          else
+            ARGS="$ARGS -DlogLevel=warn"
+          fi
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ -n "${{ github.event.inputs.tag }}" ]]; then
               ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"

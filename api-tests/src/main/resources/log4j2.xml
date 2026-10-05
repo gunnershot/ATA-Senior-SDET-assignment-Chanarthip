@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+    <Properties>
+        <Property name="logLevel">${sys:logLevel:-info}</Property>
+    </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
@@ -9,12 +12,12 @@
         </File>
     </Appenders>
     <Loggers>
-        <!-- RestAssured logs get logged at INFO level -->
-        <Logger name="API-LOG" level="info" additivity="false">
+        <!-- RestAssured logs get logged at configured level (default info, configurable via -DlogLevel=...) -->
+        <Logger name="API-LOG" level="${logLevel}" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="FileLogger"/>
         </Logger>
-        <Root level="info">
+        <Root level="${logLevel}">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="FileLogger"/>
         </Root>
