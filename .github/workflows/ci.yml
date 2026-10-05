@@ -66,7 +66,7 @@ jobs:
               ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
             fi
             if [[ -n "${{ github.event.inputs.threads }}" ]]; then
-              ARGS="$ARGS -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${{ github.event.inputs.threads }}"
+              ARGS="$ARGS -Djunit.jupiter.execution.parallel.enabled=true -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${{ github.event.inputs.threads }}"
             fi
             if [[ -n "${{ github.event.inputs.environment }}" ]]; then
               ARGS="$ARGS -Denv=${{ github.event.inputs.environment }}"
@@ -114,7 +114,7 @@ jobs:
               ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
             fi
             if [[ -n "${{ github.event.inputs.threads }}" ]]; then
-              ARGS="$ARGS -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${{ github.event.inputs.threads }}"
+              ARGS="$ARGS -Djunit.jupiter.execution.parallel.enabled=true -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${{ github.event.inputs.threads }}"
             fi
             if [[ -n "${{ github.event.inputs.environment }}" ]]; then
               ARGS="$ARGS -Denv=${{ github.event.inputs.environment }}"
