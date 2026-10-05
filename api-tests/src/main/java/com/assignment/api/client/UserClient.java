@@ -9,7 +9,6 @@ import java.io.PrintStream;
 import com.assignment.api.config.Config;
 import com.assignment.api.models.UserRequest;
 import io.qameta.allure.Step;
-import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import com.assignment.api.utils.MaskedAllureRestAssured;
 import io.restassured.config.LogConfig;

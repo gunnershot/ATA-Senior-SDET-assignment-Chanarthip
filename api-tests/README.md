@@ -19,19 +19,47 @@ This module contains the REST API test automation suite for https://gorest.co.in
 
 ## Running the Tests
 
-Navigate to the api-tests directory and use the Maven Wrapper:
+Navigate to the `api-tests` directory and use the Maven Wrapper:
 
-### On Windows
-`cmd
+### Standard Sequential / Default Execution
+
+#### On Windows (PowerShell / CMD)
+```powershell
 cd api-tests
-mvnw.cmd clean test
-`
+.\mvnw.cmd clean test
+```
 
-### On macOS / Linux
-`bash
+#### On macOS / Linux
+```bash
 cd api-tests
 ./mvnw clean test
-`
+```
+
+---
+
+## Parallel Execution
+
+The API suite is configured for JUnit 5 parallel execution via `src/test/resources/junit-platform.properties`. Test methods and classes execute concurrently in a shared thread pool.
+
+### Thread Safety & State Isolation
+- **Dynamic Data Generation:** Each test scenario generates unique user emails and names via DataFaker (`UserClient.createUniqueUser()`).
+- **Idempotency & Teardown:** Tests isolate their state and automatically delete created users upon completion, preventing collision across concurrent threads.
+
+### Run with Custom Parallel Thread Count (e.g. 4 Threads)
+
+#### On Windows (PowerShell / CMD)
+```powershell
+cd api-tests
+.\mvnw.cmd test -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
+```
+
+#### On macOS / Linux
+```bash
+cd api-tests
+./mvnw test -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
+```
+
+---
 
 ## Features
 

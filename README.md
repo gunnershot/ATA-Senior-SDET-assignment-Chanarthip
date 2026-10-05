@@ -159,6 +159,18 @@ cd ui-tests
 
 ### 1. Standard CLI Execution (Evaluator / CI)
 To run the full suite headlessly as required by the assignment specification:
+
+#### Using Maven Wrapper (No global Maven installation required)
+- **Windows (PowerShell / CMD):**
+  ```powershell
+  .\mvnw.cmd clean test
+  ```
+- **macOS / Linux:**
+  ```bash
+  ./mvnw clean test
+  ```
+
+#### Using Global Maven (if installed)
 ```bash
 mvn clean test
 ```
@@ -169,12 +181,57 @@ mvn test -Dtest=LoginTest
 mvn test -Dgroups="P0"
 ```
 
-### 2. Automated PowerShell Runner (Local Windows)
+### 2. Parallel Test Execution
+
+Both the UI and API suites are designed with parallel execution capabilities to accelerate test feedback loops:
+
+#### A. UI Tests (Playwright + Maven Surefire Process Forking)
+In Playwright UI tests, each test class (`LoginTest`, `CartTest`, `CheckoutTest`, etc.) controls an isolated browser lifecycle. To ensure 100% thread and process isolation without browser window contention or memory leaks, parallel execution is handled via Maven Surefire process forks (`-DforkCount=<N>`):
+
+- **Windows (Maven Wrapper):**
+  ```powershell
+  # Run 3 test classes in parallel across 3 JVM processes
+  .\mvnw.cmd test -DforkCount=3
+  ```
+- **macOS / Linux (Maven Wrapper):**
+  ```bash
+  ./mvnw test -DforkCount=3
+  ```
+- **Windows Automated PowerShell Runner:**
+  ```powershell
+  .\run-tests.ps1 -Threads 3
+  ```
+
+#### B. API Tests (REST Assured + JUnit 5 Concurrency)
+API tests run concurrently using JUnit 5 native threading. Tests are completely thread-safe due to dynamic test data generation (DataFaker) and isolated user teardown:
+
+- **Windows (Maven Wrapper):**
+  ```powershell
+  cd ..\api-tests
+  .\mvnw.cmd test -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
+  ```
+- **macOS / Linux (Maven Wrapper):**
+  ```bash
+  cd ../api-tests
+  ./mvnw test -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
+  ```
+
+#### C. CI/CD Parallel Execution (GitHub Actions)
+In the GitHub Actions CI pipeline (`.github/workflows/ci.yml`), tests can be triggered manually via **Run workflow** (`workflow_dispatch`), allowing you to specify the `threads` parameter (e.g. `2`, `3`, `4`). The pipeline dynamically injects:
+- `-DforkCount=${threads}` for UI tests
+- `-Djunit.jupiter.execution.parallel.config.fixed.parallelism=${threads}` for API tests
+
+---
+
+### 3. Automated PowerShell Runner (Local Windows)
 The included `run-tests.ps1` runner automatically wires the bundled JDK/Maven, executes tests, archives raw results, and builds the self-contained Single-File Allure Report:
 
 ```powershell
 # Run all 20 Scenarios (Headless by default) + auto-generate Allure report
 .\run-tests.ps1
+
+# Run in parallel across 3 JVM fork processes
+.\run-tests.ps1 -Threads 3
 
 # Run with browser window visible (Headed mode)
 .\run-tests.ps1 -Headed

@@ -30,9 +30,16 @@
 .PARAMETER NoOpen
     Switch to prevent opening the generated Allure report automatically in the default browser (ideal for CI/CD).
 
+.PARAMETER Threads
+    Optional number of parallel processes (forks) to run test classes concurrently (sets -DforkCount=<N>).
+
 .EXAMPLE
     .\run-tests.ps1
     Runs all 20 scenarios headlessly and generates the Allure single-file report.
+
+.EXAMPLE
+    .\run-tests.ps1 -Threads 3
+    Runs test classes in parallel across 3 JVM fork processes.
 
 .EXAMPLE
     .\run-tests.ps1 -Test "LoginTest" -Headed
@@ -56,7 +63,8 @@ param(
     [switch]$Clean,
     [switch]$ReportOnly,
     [string]$ResultsDir = "",
-    [switch]$NoOpen
+    [switch]$NoOpen,
+    [int]$Threads       = 0
 )
 
 $ErrorActionPreference = "Stop"
@@ -69,15 +77,21 @@ $bundledJdk  = Join-Path $scriptDir "jdk-17.0.10+7"
 $bundledMvn  = Join-Path $scriptDir "apache-maven-3.9.6"
 $allureBat   = Join-Path $scriptDir ".allure\allure-2.25.0\bin\allure.bat"
 
-$resultsDir  = Join-Path $scriptDir "allure-results"
+$resultsDir  = Join-Path $scriptDir "target\allure-results"
+if (-not (Test-Path $resultsDir) -and (Test-Path (Join-Path $scriptDir "allure-results"))) {
+    $resultsDir = Join-Path $scriptDir "allure-results"
+}
 $reportDir   = Join-Path $scriptDir "allure-report"
 $historyDir  = Join-Path $scriptDir "allure-history"
 $archiveRoot = Join-Path $scriptDir "allure-archive"
 
-# Configure Java & Maven: Prefer bundled tools if present, otherwise fall back to system
-if (Test-Path $bundledJdk) {
+# Configure Java: Prefer bundled tools if complete, otherwise detect system JDK
+if (Test-Path "$bundledJdk\bin\java.exe") {
     $env:JAVA_HOME = $bundledJdk
     $env:PATH = "$bundledJdk\bin;$env:PATH"
+} elseif (Test-Path "C:\Program Files\Java\jdk-17\bin\java.exe") {
+    $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+    $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 } elseif (-not $env:JAVA_HOME) {
     Write-Warning "JAVA_HOME is not set and bundled JDK was not found. Relying on system PATH."
 }
@@ -86,10 +100,16 @@ if (Test-Path $bundledMvn) {
     $env:PATH = "$bundledMvn\bin;$env:PATH"
 }
 
-# Verify Maven executable availability
+# Determine Maven executable (prefer mvnw.cmd wrapper if global mvn is absent)
+$mvnCmd = "mvn"
 if (-not (Get-Command "mvn" -ErrorAction SilentlyContinue)) {
-    Write-Error "[ERROR] Maven ('mvn') was not found on PATH or in bundled directories. Please install Maven or configure PATH."
-    exit 1
+    $mvnWrapper = Join-Path $scriptDir "mvnw.cmd"
+    if (Test-Path $mvnWrapper) {
+        $mvnCmd = $mvnWrapper
+    } else {
+        Write-Error "[ERROR] Maven ('mvn' or 'mvnw.cmd') was not found on PATH or in bundled directories. Please install Maven or configure PATH."
+        exit 1
+    }
 }
 
 Write-Host ""
@@ -134,13 +154,18 @@ if (-not $ReportOnly) {
         Write-Host " Execution Mode  : Headless (Default for CI/Automation)" -ForegroundColor Gray
     }
 
+    if ($Threads -gt 0) {
+        $mvnArgs += "-DforkCount=$Threads"
+        Write-Host " Parallel Forks  : $Threads JVM processes (-DforkCount=$Threads)" -ForegroundColor Cyan
+    }
+
     if ($Test -eq "" -and $Tag -eq "") {
         Write-Host " Target Suite    : All 20 Scenarios across 5 Test Classes" -ForegroundColor Yellow
     }
     Write-Host ""
 
     $ErrorActionPreference = "Continue"
-    & mvn @mvnArgs
+    & $mvnCmd @mvnArgs
     $testExitCode = $LASTEXITCODE
     $ErrorActionPreference = "Stop"
 
@@ -180,7 +205,7 @@ if (-not (Test-Path $sourceResults) -or -not (Get-ChildItem $sourceResults -Filt
 if (-not (Test-Path $allureBat)) {
     Write-Host " Downloading & installing Allure CLI (First time only)..." -ForegroundColor Cyan
     $ErrorActionPreference = "Continue"
-    & mvn -q io.qameta.allure:allure-maven:2.12.0:install
+    & $mvnCmd -q io.qameta.allure:allure-maven:2.12.0:install
     $ErrorActionPreference = "Stop"
 }
 
