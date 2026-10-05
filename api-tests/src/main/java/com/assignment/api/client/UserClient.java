@@ -17,6 +17,9 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+import io.restassured.config.LogConfig;
+import io.restassured.config.RestAssuredConfig;
+
 public class UserClient {
     private static final String USERS_ENDPOINT = Config.getUsersEndpoint();
 
@@ -26,6 +29,7 @@ public class UserClient {
         PrintStream logStream = IoBuilder.forLogger(log).setLevel(Level.INFO).buildPrintStream();
         
         return RestAssured.given()
+                .config(RestAssuredConfig.config().logConfig(LogConfig.logConfig().blacklistHeader("Authorization")))
                 .baseUri(Config.getBaseUrl())
                 .header("Authorization", "Bearer " + Config.getApiToken())
                 .contentType(ContentType.JSON)
