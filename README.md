@@ -272,7 +272,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **20 automated scenarios** across 5 feature classes:
+The suite covers **21 automated scenarios** across 5 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -296,6 +296,7 @@ The suite covers **20 automated scenarios** across 5 feature classes:
 | **UI-18** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P1 | **Observed Defect:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
 | **UI-19** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P1 | **Observed Defect:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
 | **UI-20** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
+| **UI-21** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
 
 ---
 

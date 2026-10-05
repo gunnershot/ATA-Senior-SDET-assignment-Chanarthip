@@ -14,11 +14,18 @@ import com.assignment.pages.CheckoutCompletePage;
 import com.assignment.pages.CheckoutInfoPage;
 import com.assignment.pages.CheckoutOverviewPage;
 
+import com.assignment.utils.PdfUtils;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Feature("Checkout & Order Integrity")
 class CheckoutTest extends BaseTest {
@@ -178,6 +185,136 @@ class CheckoutTest extends BaseTest {
         // Specific observed behavior: Whitespace-only string bypasses client validation
         assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
         Allure.step("DISCOVERED DEFECT [A5]: Whitespace-only strings ('   ') bypass required validation on checkout");
+    }
+
+    @Test
+    @Tag("UI-21")
+    @Tag("P1")
+    @Tag("Regression")
+    @Story("Order Receipt PDF")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("[UI-21] Should generate and verify PDF order receipt contains accurate customer and order details upon checkout completion")
+    void shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion() {
+        CheckoutInfo customer = CheckoutInfo.valid();
+        CartPage cart = cartWith(User.STANDARD, Product.BACKPACK);
+        CheckoutCompletePage complete = cart.checkout()
+                .fill(customer)
+                .continueToOverview()
+                .finish();
+
+        assertThat(complete.header()).hasText("Thank you for your order!");
+        assertThat(complete.generatePdfButton()).isVisible();
+
+        Path pdfFile = complete.downloadOrderPdf();
+        assertNotNull(pdfFile, "Downloaded PDF path must not be null");
+        assertTrue(Files.exists(pdfFile), "Downloaded PDF file must exist on disk");
+
+        // Attach downloaded PDF to Allure report for full auditability
+        try (InputStream stream = Files.newInputStream(pdfFile)) {
+            Allure.addAttachment("Order Receipt PDF", "application/pdf", stream, ".pdf");
+        } catch (Exception ignored) {
+        }
+
+        String pdfText = PdfUtils.extractText(pdfFile);
+
+        // Verify Brand & Receipt Header
+        assertTrue(pdfText.contains("Swag Labs"), "PDF receipt must contain brand 'Swag Labs'");
+        assertTrue(pdfText.contains("Order Receipt"), "PDF receipt must contain title 'Order Receipt'");
+
+        // Verify Customer Shipping Info (John Doe, 10110)
+        assertTrue(pdfText.contains(customer.firstName() + " " + customer.lastName()),
+                "PDF receipt must contain customer full name: " + customer.firstName() + " " + customer.lastName());
+        assertTrue(pdfText.contains(customer.postalCode()),
+                "PDF receipt must contain customer postal code: " + customer.postalCode());
+
+        // Verify Item Details & Pricing
+        assertTrue(pdfText.contains(Product.BACKPACK.displayName()),
+                "PDF receipt must contain ordered product name: " + Product.BACKPACK.displayName());
+        assertTrue(pdfText.contains("Item total $29.99"), "PDF receipt must contain correct item total ($29.99)");
+        assertTrue(pdfText.contains("Tax $2.40"), "PDF receipt must contain correct tax ($2.40)");
+        assertTrue(pdfText.contains("Total $32.39"), "PDF receipt must contain correct total ($32.39)");
+        assertTrue(pdfText.contains("Thank you for your order!"), "PDF receipt must contain thank you message");
+    }
+
+    @Test
+    @Tag("UI-22")
+    @Tag("P0")
+    @Tag("Smoke")
+    @Tag("Regression")
+    @Story("Price & Tax Integrity")
+    @Severity(SeverityLevel.BLOCKER)
+    @DisplayName("[UI-22] Should dynamically calculate subtotal, 8% tax, and total when checking out entire product catalog (6 items)")
+    void shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout() {
+        CheckoutInfo customer = CheckoutInfo.valid();
+
+        // 1. Add all 6 products in catalog to cart
+        CartPage cart = cartWith(User.STANDARD, Product.values());
+        assertThat(cart.items()).hasCount(Product.values().length);
+
+        // 2. Proceed to Checkout Overview
+        CheckoutOverviewPage overview = cart.checkout()
+                .fill(customer)
+                .continueToOverview();
+
+        // 3. Validate all 6 products are rendered in overview
+        assertThat(overview.items()).hasCount(Product.values().length);
+
+        // 4. Dynamic Calculation: Sum expected subtotal from Product enum definitions
+        BigDecimal expectedSubtotal = BigDecimal.ZERO;
+        for (Product product : Product.values()) {
+            expectedSubtotal = expectedSubtotal.add(product.price());
+        }
+
+        // 5. Dynamic Calculation: 8% Tax with RoundingMode.HALF_UP (standard SauceDemo tax algorithm)
+        BigDecimal expectedTax = expectedSubtotal.multiply(new BigDecimal("0.08"))
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal expectedTotal = expectedSubtotal.add(expectedTax);
+
+        // 6. Assert UI overview prices match dynamic calculations
+        BigDecimal actualSubtotal = overview.subtotal();
+        BigDecimal actualTax = overview.tax();
+        BigDecimal actualTotal = overview.total();
+
+        assertEquals(0, expectedSubtotal.compareTo(actualSubtotal),
+                "Subtotal on UI must exactly match dynamic sum of all 6 products ($" + expectedSubtotal + ")");
+        assertEquals(0, expectedTax.compareTo(actualTax),
+                "Tax on UI must match dynamic 8% tax calculation ($" + expectedTax + ")");
+        assertEquals(0, expectedTotal.compareTo(actualTotal),
+                "Total on UI must equal Subtotal + Tax ($" + expectedTotal + ")");
+
+        // 7. Complete order and verify receipt PDF contains all 6 items and accurate dynamic totals
+        CheckoutCompletePage complete = overview.finish();
+        assertThat(complete.header()).hasText("Thank you for your order!");
+
+        Path pdfFile = complete.downloadOrderPdf();
+        assertNotNull(pdfFile, "Downloaded receipt PDF path must not be null");
+        assertTrue(Files.exists(pdfFile), "Downloaded receipt PDF file must exist");
+
+        // Attach PDF receipt to Allure report
+        try (InputStream stream = Files.newInputStream(pdfFile)) {
+            Allure.addAttachment("Full Catalog Order Receipt PDF", "application/pdf", stream, ".pdf");
+        } catch (Exception ignored) {
+        }
+
+        String pdfText = PdfUtils.extractText(pdfFile);
+
+        // Assert all 6 products are listed in the PDF receipt
+        for (Product product : Product.values()) {
+            assertTrue(pdfText.contains(product.displayName()),
+                    "PDF receipt must list item: " + product.displayName());
+        }
+
+        // Assert customer shipping info and dynamic totals in PDF
+        assertTrue(pdfText.contains(customer.firstName() + " " + customer.lastName()),
+                "PDF receipt must contain customer full name: " + customer.firstName() + " " + customer.lastName());
+        assertTrue(pdfText.contains(customer.postalCode()),
+                "PDF receipt must contain customer postal code: " + customer.postalCode());
+        assertTrue(pdfText.contains("Item total $" + expectedSubtotal),
+                "PDF receipt must contain dynamic item total: $" + expectedSubtotal);
+        assertTrue(pdfText.contains("Tax $" + expectedTax),
+                "PDF receipt must contain dynamic tax: $" + expectedTax);
+        assertTrue(pdfText.contains("Total $" + expectedTotal),
+                "PDF receipt must contain dynamic grand total: $" + expectedTotal);
     }
 }
 

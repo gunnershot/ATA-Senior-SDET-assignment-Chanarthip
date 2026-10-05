@@ -32,6 +32,14 @@ public class InventoryPage extends BasePage {
         return this;
     }
 
+    @Step("Add all available products to cart")
+    public InventoryPage addAll() {
+        for (Product product : Product.values()) {
+            add(product);
+        }
+        return this;
+    }
+
     @Step("Remove {product} from cart (inventory page)")
     public InventoryPage remove(Product product) {
         removeButton(product).click();

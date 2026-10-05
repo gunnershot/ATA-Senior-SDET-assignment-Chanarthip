@@ -1,6 +1,6 @@
 {
   "browser": "chromium",
-  "headless": false,
+  "headless": true,
   "slowMo": 100,
   "baseUrl": "https://www.saucedemo.com",
   "defaultTimeoutMs": 10000,
