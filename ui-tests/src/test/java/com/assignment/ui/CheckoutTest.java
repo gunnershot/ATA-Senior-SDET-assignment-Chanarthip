@@ -308,10 +308,9 @@ class CheckoutTest extends BaseTest {
                 .fill(CheckoutInfo.valid())
                 .continueToOverview();
 
-        // Specific observed behavior: SauceDemo allows empty cart orders to complete
+        // Expectation: The system should not allow the order to complete
         CheckoutCompletePage complete = overview.finish();
-        assertThat(complete.header()).hasText("Thank you for your order!");
-        Allure.step("DISCOVERED DEFECT [A4]: SauceDemo allows placing order with empty cart (0 items, $0.00 total)");
+        assertThat(complete.header()).not().isVisible();
     }
 
     @Test
@@ -331,9 +330,9 @@ class CheckoutTest extends BaseTest {
         infoPage.fill(new CheckoutInfo("   ", "   ", "   "));
         infoPage.continueToOverview();
 
-        // Specific observed behavior: Whitespace-only string bypasses client validation
-        assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
-        Allure.step("DISCOVERED DEFECT [A5]: Whitespace-only strings ('   ') bypass required validation on checkout");
+        // Expectation: Should remain on info page and display validation error
+        assertThat(page).not().hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
+        assertThat(infoPage.error()).isVisible();
     }
 
     @Test
@@ -353,8 +352,9 @@ class CheckoutTest extends BaseTest {
         infoPage.fill(new CheckoutInfo("John", "Doe", "ABCDE"));
         infoPage.continueToOverview();
 
-        // Specific observed behavior: Non-numeric postal code string bypasses format validation
-        assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
+        // Expectation: Should remain on info page and display validation error
+        assertThat(page).not().hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
+        assertThat(infoPage.error()).isVisible();
         Allure.step("DISCOVERED DEFECT [A7]: Non-numeric postal code ('ABCDE') bypasses format validation and allows proceeding to checkout overview");
     }
 
