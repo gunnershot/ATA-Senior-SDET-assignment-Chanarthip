@@ -144,7 +144,7 @@ if (-not $ReportOnly) {
 
     if ($Tag -ne "") {
         $mvnArgs += "-Dgroups=$Tag"
-        if ($Tag -match 'Not-run' -or $Tag -match 'DEF-') {
+        if ($Tag -match 'NotRun' -or $Tag -match 'DEF-') {
             $mvnArgs += "-DexcludedGroups=DummyGroupToClearExclusion"
         }
         Write-Host " Filter [Tag]    : $Tag" -ForegroundColor Yellow
@@ -308,4 +308,5 @@ finally {
 }
 
 exit $testExitCode
+
 

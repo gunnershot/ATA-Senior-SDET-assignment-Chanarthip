@@ -287,10 +287,9 @@ class CheckoutTest extends BaseTest {
 
     @Test
     @Tag("DEF-03")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Boundary")
     @Tag("P1")
-    @Tag("Regression")
     @Tag("Defect-A4")
     @Issue("A4")
     @Story("Empty Cart Boundary")
@@ -317,10 +316,9 @@ class CheckoutTest extends BaseTest {
 
     @Test
     @Tag("DEF-04")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Edge")
     @Tag("P1")
-    @Tag("Regression")
     @Tag("Defect-A5")
     @Issue("A5")
     @Story("Whitespace Input Validation")
@@ -340,10 +338,9 @@ class CheckoutTest extends BaseTest {
 
     @Test
     @Tag("DEF-06")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Edge")
     @Tag("P1")
-    @Tag("Regression")
     @Tag("Defect-A7")
     @Issue("A7")
     @Story("Postal Code Format Validation")
@@ -381,4 +378,5 @@ class CheckoutTest extends BaseTest {
         Allure.step("AMBIGUITY: Allowed character sets for First and Last Name are unspecified. System allows 'John123!@#' and 'Doe$%^987'.");
     }
 }
+
 

@@ -20,10 +20,9 @@ class ProblemUserTest extends BaseTest {
 
     @Test
     @Tag("DEF-01")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Diagnostic")
     @Tag("P1")
-    @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-01")
     @Story("Problem User Cart Defect")
     @Severity(SeverityLevel.CRITICAL)
@@ -42,10 +41,9 @@ class ProblemUserTest extends BaseTest {
 
     @Test
     @Tag("DEF-02")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Diagnostic")
     @Tag("P1")
-    @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-02")
     @Story("Problem User Form Defect")
     @Severity(SeverityLevel.CRITICAL)
@@ -70,10 +68,9 @@ class ProblemUserTest extends BaseTest {
 
     @Test
     @Tag("DEF-05")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Diagnostic")
     @Tag("P1")
-    @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-03")
     @Story("Problem User Catalog Image Defect")
     @Severity(SeverityLevel.MINOR)
@@ -95,10 +92,9 @@ class ProblemUserTest extends BaseTest {
 
     @Test
     @Tag("DEF-07")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Diagnostic")
     @Tag("P1")
-    @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-04")
     @Story("Problem User Navigation Defect")
     @Severity(SeverityLevel.CRITICAL)
@@ -114,10 +110,9 @@ class ProblemUserTest extends BaseTest {
 
     @Test
     @Tag("DEF-08")
-    @Tag("Not-run")
+    @Tag("NotRun")
     @Tag("Diagnostic")
     @Tag("P1")
-    @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-05")
     @Story("Problem User Add to Cart Limitation")
     @Severity(SeverityLevel.CRITICAL)
@@ -133,4 +128,5 @@ class ProblemUserTest extends BaseTest {
         Allure.step("DISCOVERED DEFECT [DEF-08]: problem_user is limited to adding only 3 of 6 items to cart.");
     }
 }
+
 
