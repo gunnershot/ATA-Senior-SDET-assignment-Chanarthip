@@ -25,11 +25,12 @@ This document catalogs all assumptions, surfaced ambiguities, and their correspo
 
 ---
 
-### [Assumption A3] Financial Calculation & Tax Precision
-- **Ambiguity:** The tax calculation formula and rounding rule are not explicitly stated on SauceDemo.
-- **Observed Behavior:** Tax is approximately 8% of the item total, rounded to two decimal places.
-- **Engineering Assumption:** Automation must not use standard 64-bit IEEE 754 floating-point `double` arithmetic (`0.1 + 0.2 != 0.3`) for financial assertions. All price subtotals, tax validations, and grand totals must be parsed and calculated using `java.math.BigDecimal` with `RoundingMode.HALF_UP`.
-- **Test Implementation:** Implemented in `CheckoutOverviewPage` and verified in `CheckoutTest#shouldCalculateAccurateTotalForMultipleItems`.
+### [Assumption A3] Financial Calculation & Tax Precision (Rounding Rule)
+- **Ambiguity:** The tax calculation formula and rounding rule (e.g., rounding up vs. truncating) are not explicitly stated on SauceDemo.
+- **Observed Behavior:** Tax is fixed at 8% of the item total. Crucially, the system rounds decimals using standard **HALF_UP** rules (ปัดขึ้นตั้งแต่เลข 5). 
+  - *Example:* Adding Fleece Jacket ($49.99): `49.99 * 0.08 = 3.9992`. The system rounds this to **$4.00**, making the Total **$53.99** (`49.99 + 4.00`).
+- **Engineering Assumption:** Automation must not use standard 64-bit IEEE 754 floating-point `double` arithmetic (`0.1 + 0.2 != 0.3`) for financial assertions. All price subtotals, tax validations, and grand totals must be parsed and calculated using `java.math.BigDecimal` with `RoundingMode.HALF_UP` to match the application's underlying logic.
+- **Test Implementation:** Implemented in `CheckoutOverviewPage` and verified in `CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout` (UI-13, UI-14).
 
 ---
 
