@@ -62,5 +62,13 @@ public class InventoryPage extends BasePage {
         cartLink().click();
         return new CartPage(page);
     }
-}
+    @Step("Select sort option {optionValue}")
+    public InventoryPage sortBy(String optionValue) {
+        page.getByTestId("product-sort-container").selectOption(optionValue);
+        return this;
+    }
 
+    public java.util.List<String> getAllItemNames() {
+        return page.getByTestId("inventory-item-name").allTextContents();
+    }
+}
