@@ -327,5 +327,47 @@ public class UserApiTests extends BaseApiTest {
         GenericError error = response.as(GenericError.class);
         assertThat(error.getMessage()).contains("Invalid token");
     }
+
+    @Test
+    @Tag("Regression")
+    @Tag("HappyPath")
+    @Tag("Security")
+    @DisplayName("15. GET /users - Get all users without authentication token")
+    @Description("Verify that public endpoint GET /users does not require an authentication token and returns 200 OK.")
+    public void testGetAllUsersWithoutToken() {
+        Response response = userClient.getUsersWithoutToken(null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        response.then().assertThat().body(matchesJsonSchemaInClasspath("schemas/users-schema.json"));
+
+        List<UserResponse> users = response.jsonPath().getList("$", UserResponse.class);
+        assertThat(users)
+            .as("Users list fetched without token should not be empty")
+            .isNotEmpty();
+    }
+
+    @Test
+    @Tag("Regression")
+    @Tag("HappyPath")
+    @Tag("Security")
+    @DisplayName("16. GET /users/{id} - Get user by ID without authentication token")
+    @Description("Verify that public endpoint GET /users/{id} does not require an authentication token and returns 200 OK.")
+    public void testGetUserByIdWithoutToken() {
+        // Retrieve public users list without token to get an active public seed user ID
+        Response listResponse = userClient.getUsersWithoutToken(null);
+        assertThat(listResponse.statusCode()).isEqualTo(200);
+        List<UserResponse> publicUsers = listResponse.jsonPath().getList("$", UserResponse.class);
+        assertThat(publicUsers).isNotEmpty();
+
+        UserResponse expectedUser = publicUsers.get(0);
+        Long targetId = expectedUser.getId();
+
+        Response getResponse = userClient.getUserWithoutToken(targetId);
+        assertThat(getResponse.statusCode()).isEqualTo(200);
+
+        UserResponse fetchedUser = getResponse.as(UserResponse.class);
+        assertThat(fetchedUser.getId()).isEqualTo(targetId);
+        assertThat(fetchedUser.getName()).isEqualTo(expectedUser.getName());
+        assertThat(fetchedUser.getEmail()).isEqualTo(expectedUser.getEmail());
+    }
 }
 

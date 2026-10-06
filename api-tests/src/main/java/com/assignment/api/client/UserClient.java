@@ -84,9 +84,25 @@ public class UserClient {
                 .get(USERS_ENDPOINT);
     }
 
+    @Step("Get list of users without token")
+    public Response getUsersWithoutToken(java.util.Map<String, Object> queryParams) {
+        return getRequestSpecWithoutToken()
+                .queryParams(queryParams != null ? queryParams : java.util.Collections.emptyMap())
+                .when()
+                .get(USERS_ENDPOINT);
+    }
+
     @Step("Get user by ID: {id}")
     public Response getUser(Long id) {
         return getRequestSpec()
+                .pathParam("id", id)
+                .when()
+                .get(USERS_ENDPOINT + "/{id}");
+    }
+
+    @Step("Get user by ID without token: {id}")
+    public Response getUserWithoutToken(Long id) {
+        return getRequestSpecWithoutToken()
                 .pathParam("id", id)
                 .when()
                 .get(USERS_ENDPOINT + "/{id}");

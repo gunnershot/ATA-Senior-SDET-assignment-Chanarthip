@@ -107,7 +107,7 @@ Absolutely. The suite aggressively tests negative conditions, including:
 
 ## API Test Scenario Matrix
 
-The suite covers 14 scenarios comprehensively mapped to the GoRest User API:
+The suite covers 16 scenarios comprehensively mapped to the GoRest User API:
 
 | ID | Endpoint | Method | Category | Expected Outcome |
 |----|----------|--------|----------|------------------|
@@ -125,3 +125,5 @@ The suite covers 14 scenarios comprehensively mapped to the GoRest User API:
 | **API-12** | `GET /users` | `testGetAllUsersWithFilters` | Happy Path | Validates data filtering via query strings (e.g., `gender=female`). |
 | **API-13** | `POST /users` | `testCreateUserMissingRequiredField` | Negative | Parameterized tests ensuring every required field is validated. |
 | **API-14** | `POST /users` | `testCreateUserWithInvalidToken` | Negative | Rejects malformed authorization tokens (401). |
+| **API-15** | `GET /users` | `testGetAllUsersWithoutToken` | Security / Happy | Verifies that GET /users is a public endpoint accessible without authentication token (200). |
+| **API-16** | `GET /users/{id}` | `testGetUserByIdWithoutToken` | Security / Happy | Verifies that GET /users/{id} retrieves public users without authentication token (200). |
