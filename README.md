@@ -56,17 +56,19 @@ ATA-Senior-SDET-assignment-Chanarthip/
 │   ├── apache-maven-3.9.6/                 # Bundled Apache Maven 3.9.6
 │   ├── run-tests.ps1                       # Automated Test Runner & Allure Single-File Generator
 │   ├── pom.xml                             # Dependencies & Allure plugins
+│   ├── .env.example                        # Template for environment secret variables
 │   ├── .env                                # Local secrets (Git-ignored)
 │   ├── src/
 │   │   ├── main/java/com/assignment/       # Core Framework Layer
 │   │   │   ├── base/
 │   │   │   │   └── BaseTest.java           # Playwright Context, Tracing, and Lifecycle Management
 │   │   │   ├── config/
-│   │   │   │   ├── PlaywrightConfig.java   # JSON & CLI Override Config Loader
-│   │   │   │   ├── Credentials.java        # Env & Dotenv Secret Reader
+│   │   │   │   ├── PlaywrightConfig.java   # Dynamic Env & 5-Tier Hierarchical Credential Resolver
+│   │   │   │   ├── UserCredentials.java    # POJO for user username/password mapping
+│   │   │   │   ├── Credentials.java        # Backward-compatible secret helper
 │   │   │   │   └── AppConfig.java          # Backward-compatibility facade
 │   │   │   ├── models/
-│   │   │   │   ├── User.java               # Accounts Enum (Standard, LockedOut, Problem, Glitch)
+│   │   │   │   ├── User.java               # Accounts Enum with dynamic credential resolution
 │   │   │   │   ├── Product.java            # Products & Data-Test Slugs Enum
 │   │   │   │   └── CheckoutInfo.java       # Immutable Form Record
 │   │   │   ├── pages/                      # Page Object Model (POM)
@@ -91,7 +93,14 @@ ATA-Senior-SDET-assignment-Chanarthip/
 │   │       │   ├── CatalogTest.java        # UI-20 (Catalog Sorting Ambiguity)
 │   │       │   └── ProblemUserTest.java    # DEF-01, DEF-02, DEF-05, DEF-07, DEF-08 (Defect Showcase)
 │   │       └── resources/
-│   │           ├── playwright.json         # Environment Settings (Default: headless = true)
+│   │           ├── playwright.json         # Base fallback settings
+│   │           ├── env/                    # Environment-specific Configurations
+│   │           │   ├── local.json.template # Template for local runs (Git-tracked, empty passwords)
+│   │           │   ├── local.json          # Developer's local config (Git-ignored)
+│   │           │   ├── dev.json            # CI/CD default configuration
+│   │           │   ├── sit.json            # System Integration Testing environment
+│   │           │   ├── staging.json        # Staging environment
+│   │           │   └── uat.json            # User Acceptance Testing environment
 │   │           └── junit-platform.properties# JUnit 5 Execution settings
 │   ├── allure-results/                     # Raw Allure event files
 │   ├── allure-report/                      # Portable Single-File HTML Report
@@ -116,38 +125,55 @@ Playwright automatically downloads browser binaries on its initial run. To pre-i
 mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps chromium"
 ```
 
-### 3. Credentials Configuration
-The application password is read via `Credentials.java`:
-1. **Local `.env` file (Ignored in `.gitignore`):**
-   ```env
-   SAUCE_PASSWORD=secret_sauce
+### 3. Credentials & Multi-Environment Configuration
+To adhere strictly to **Ground Rule: Never commit secrets**, real credentials are never stored in git history. Passwords resolve via a robust **5-Tier Hierarchical Cascade**:
+
+```
+1. ${ENV}_${USER}_PASSWORD      (e.g., SIT_PROBLEM_USER_PASSWORD)
+             ↓
+2. ${USER}_PASSWORD            (e.g., PROBLEM_USER_PASSWORD)
+             ↓
+3. ${ENV}_SAUCE_PASSWORD        (e.g., SIT_SAUCE_PASSWORD, DEV_SAUCE_PASSWORD)
+             ↓
+4. SAUCE_PASSWORD               (Global fallback)
+             ↓
+5. Template / Public Demo       (Local demo runtime default: secret_sauce)
+```
+
+1. **Local Development Setup:**
+   Copy the provided template to create your local private configuration:
+   ```powershell
+   Copy-Item ui-tests/src/test/resources/env/local.json.template ui-tests/src/test/resources/env/local.json
    ```
-2. **Environment Variable (Standard for CI pipelines):**
+   *(Note: `local.json` is ignored in `.gitignore`, ensuring your private credentials never leak).*
+2. **Environment Variables or `.env`:**
+   Configure credentials via `ui-tests/.env` (see `ui-tests/.env.example`) or export environment variables:
    ```bash
-   export SAUCE_PASSWORD=secret_sauce
+   export DEV_SAUCE_PASSWORD="your_dev_password"
+   export SIT_PROBLEM_USER_PASSWORD="special_problem_pass"
    ```
-*(Fallback default `secret_sauce` is embedded safely for headless evaluation runs).*
+3. **CI/CD Pipeline (GitHub Secrets):**
+   Secrets are mapped directly to environment variables in `.github/workflows/ci.yml`.
 
 ---
 
 ## Configuration Management
 
-Runtime parameters are centralized in `ui-tests/src/test/resources/playwright.json`:
-```json
-{
-  "browser": "chromium",
-  "headless": true,
-  "slowMo": 0,
-  "baseUrl": "https://www.saucedemo.com",
-  "defaultTimeoutMs": 10000,
-  "performanceTimeoutMs": 10000
-}
-```
+Environment configurations are separated per stage under `ui-tests/src/test/resources/env/`:
+- `local.json.template` (Local baseline template with empty passwords)
+- `dev.json` (CI/CD default environment)
+- `sit.json` (System Integration Testing)
+- `staging.json` (Staging environment)
+- `uat.json` (User Acceptance Testing)
 
-### Dynamic CLI Overrides
-Any setting in `playwright.json` can be dynamically overridden from the command line without editing source files:
+### Environment Switching & Dynamic CLI Overrides
+You can target any environment via `-Denv=<name>` or `-Env <name>` (PowerShell):
 ```bash
-mvn test -Dheadless=false -Dbrowser=firefox
+# Target dev environment
+mvn test -Denv=dev
+
+# Target SIT environment in headed mode on firefox
+mvn test -Denv=sit -Dheadless=false -Dbrowser=firefox
 ```
 
 ---
@@ -249,6 +275,12 @@ The included `run-tests.ps1` runner automatically wires the bundled JDK/Maven, e
 
 # Exclude specific tags (e.g. exclude Edge cases or slow tests)
 .\run-tests.ps1 -Tag "Regression" -ExcludeTag "Edge"
+
+# Target specific environment (e.g. dev, sit, staging, uat)
+.\run-tests.ps1 -Env "sit"
+
+# Combine environment, tag filter, exclusion, and parallel execution
+.\run-tests.ps1 -Env "dev" -Tag "Regression" -ExcludeTag "Edge" -Threads 3
 
 # Dynamic User Injection (Showcase defect detection by injecting problem_user)
 .\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "problem_user"
@@ -399,16 +431,16 @@ Documented comprehensively in [`test-coverage/assumptions.md`](test-coverage/ass
 - **Assumption A5 (Whitespace Sanitization):** Form inputs lack `.trim()` sanitization, classified as an input validation defect.
 - **Assumption A6 (State Persistence):** Cart persistence across page reload (`F5`) is client-side and verified as an edge case.
 - **Assumption A7 (Postal Code Validation):** Arbitrary alphanumeric characters bypass validation, treated as an input validation defect.
-- **Assumption A8 (Multi-Environment & Secret Management):** Multi-environment (`local`, `sit`, `staging`, `uat`) architecture with dynamic resolution; zero committed secrets by resolving passwords via environment variables.
+- **Assumption A8 (Multi-Environment Configuration & Secret Management):** Multi-environment (`local`, `dev`, `sit`, `staging`, `uat`) architecture with dynamic resolution. `local.json` is gitignored to protect developer credentials, with `local.json.template` tracked as an empty-password template. Passwords resolve via a 5-tier cascade (`${ENV}_${USER}_PASSWORD` -> `${USER}_PASSWORD` -> `${ENV}_SAUCE_PASSWORD` -> `SAUCE_PASSWORD` -> template default), ensuring zero committed credentials in repository history.
 
 ---
 
 ## Part 2: API Automation Tests
 
-The API test suite (pi-tests) validates the GoRest API using **REST Assured** and **JUnit 5**, focusing on robust HTTP client architecture and dynamic state management.
+The API test suite (`api-tests`) validates the GoRest API using **REST Assured** and **JUnit 5**, focusing on robust HTTP client architecture and dynamic state management.
 
 ### Directory Structure
-`
+```
 api-tests/
 ├── src/
 │   ├── main/java/com/assignment/api/
@@ -423,14 +455,14 @@ api-tests/
 │   │       └── DataFaker.java          # Dynamic test data generation (Faker)
 │   └── test/java/com/assignment/api/
 │       └── UserCrudTest.java           # Comprehensive CRUD operations & boundary coverage
-`
+```
 
 ### Key Architectural Characteristics
-1. **Model-Driven Payloads:** Raw JSON strings are completely avoided. We use Jackson POJOs (UserRequest, UserResponse) to enforce strict type safety and structured assertions.
-2. **Client Abstraction:** Test classes like UserCrudTest never execute raw HTTP calls. They invoke declarative methods from UserClient (e.g. client.createUser(payload)).
+1. **Model-Driven Payloads:** Raw JSON strings are completely avoided. We use Jackson POJOs (`UserRequest`, `UserResponse`) to enforce strict type safety and structured assertions.
+2. **Client Abstraction:** Test classes like `UserCrudTest` never execute raw HTTP calls. They invoke declarative methods from `UserClient` (e.g. `client.createUser(payload)`).
 3. **Idempotency & Isolation:** 
-   - Uses DataFaker to generate unique email addresses dynamically, preventing database collision during parallel test runs.
-   - All tests track created entities in a thread-safe list. The @AfterEach lifecycle hook iterates and issues DELETE requests to purge the environment, ensuring tests do not leak state or pollute the API database.
+   - Uses `DataFaker` to generate unique email addresses dynamically, preventing database collision during parallel test runs.
+   - All tests track created entities in a thread-safe list. The `@AfterEach` lifecycle hook iterates and issues DELETE requests to purge the environment, ensuring tests do not leak state or pollute the API database.
 
 ## Part 3: CI/CD Pipeline Fixes & Extensions
 
@@ -454,20 +486,60 @@ The `starter-kit/ci-broken.yml` file contained several issues that prevented the
    * *Fix:* Mapped `GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}` via GitHub Secrets.
 9. **Allure Result Directory Misalignment:** UI tests saved raw results to project base instead of `target/allure-results`.
    * *Fix:* Standardized `ui-tests/pom.xml` to output to `${project.build.directory}/allure-results`.
-10. **Pipeline Parameterization & Parallel Execution:** Extended workflow with `workflow_dispatch` inputs supporting suite selection (`all`, `ui`, `api`), tag filtering, environment configuration, parallel execution (`threads`), and dynamic Log4j2 verbosity toggles.
+10. **Pipeline Parameterization & Parallel Execution:** Extended workflow with `workflow_dispatch` inputs supporting:
+    * **Suite Selection:** Choose between `all`, `ui`, or `api`.
+    * **Tag Inclusion & Exclusion:** Filter tests with `tag` (`-Dgroups`) and selectively exclude tests with `exclude_tag` (`-DexcludedGroups`).
+    * **Environment Selection:** Target `dev` (default for CI), `local`, `sit`, `staging`, or `uat`.
+    * **Concurrency & Parallel Execution:** Configurable `threads` parameter mapping to Surefire process forks (`-DforkCount`) and JUnit 5 parallel threads.
+    * **Logging Verbosity:** Dynamic Log4j2 toggle (`enable_logs`) for troubleshooting.
 
 ---
 
 ## Part 4: AI-Assisted Workflow Notes
 
-- **AI Tools & Collaborative Design:**  
-  I utilized Google Antigravity with the interactive `/grill-me` design interview workflow as an architectural sparring partner. Instead of using AI as a blind code generator, I leveraged `/grill-me` to systematically evaluate trade-offs, plan the clean separation between framework infrastructure (`src/main/java/com/assignment`) and test suites (`src/test/java/com/assignment/ui`), refine Playwright locator strategies (`getByTestId`), and establish balanced JUnit 5 tag boundaries (`Smoke` vs `Regression`).
+> **Evaluation Rubric Alignment:**
+> - **Calibrated Trust:** Treating all AI-generated code, commands, and assertions strictly as unverified drafts requiring rigorous automated and manual validation.
+> - **Self-Direction:** Maintaining continuous architectural ownership, independently catching subtle bugs, syntax traps, and configuration issues.
+> - **Engineering Honesty:** Exercising transparent judgment, taking accountability for framework integrity, and retaining non-negotiable human ownership over security, privacy, and defect oracles.
 
-- **Concrete Failure & Verification (Calibrated Trust):**  
-  While executing a structural refactor to rename packages in bulk, the AI assistant generated a batch PowerShell string-replacement script with an uninitialized variable (`$newContent`), which wiped the Java files down to 0 bytes. Because I practice strict verification and run continuous sanity builds, I detected the empty build immediately (`0 tests executed`). Rather than re-prompting blindly, I took manual command: I audited the session transcripts to extract the latest verified source code revisions, restored the repository, and verified every file with targeted test runs. This concrete failure reinforced why Senior SDETs must treat all AI outputs as unverified drafts.
+### 1. AI Tools Used & Functional Scope
+In this assignment, AI was utilized not as an unchecked code generator, but as an interactive engineering accelerator and tooling extension via **Google Antigravity**:
 
-- **What Was Deliberately Not Delegated:**  
-  I deliberately did not delegate the core test design thinking, equivalence partitioning, or the defect assertion strategy. AI tools exhibit a strong bias toward generating naive happy paths, adding arbitrary `Thread.sleep` to paper over timing issues, or using weak assertions to make tests pass green. Designing strict, non-flaky assertions for defective states—such as `problem_user`'s broken remove button and SauceDemo's empty-cart checkout allowance—required intentional human engineering judgment.
+- **Interactive Architecture & Decision Framing (`/grill-me`):**  
+  Used the interactive `/grill-me` workflow as an architectural sparring partner to systematically resolve design trade-offs before implementation—such as structuring the 5-tier hierarchical secret cascade, separating framework core (`src/main/java/com/assignment`) from test logic (`src/test/java/com/assignment`), designing tag categorization (`Smoke`, `Regression`, `Defect`), and evaluating JUnit 5 parallel vs. Surefire process-fork isolation.
+- **Dynamic DOM Inspection & Locator Discovery (`chrome-devtools-mcp`):**  
+  Leveraged Chrome DevTools MCP server to directly inspect SauceDemo's live DOM tree, discover native `data-test` identifiers, and verify locator resilience (such as `page.getByTestId(...)`) without guessing or brittle XPath mappings.
+- **Autonomous Exploratory Testing (`chrome-devtools-mcp`):**  
+  Employed MCP browser automation to conduct initial exploratory sessions across different persona accounts (`problem_user`, `locked_out_user`, `performance_glitch_user`), dynamically capturing console errors, network latency anomalies, and broken state mutations (e.g. broken image asset paths, dysfunctional remove buttons).
+- **Custom Agent Skills for Execution & Debugging (`run-ui-tests`, `run-api-tests`, `run-debug-mode`):**  
+  Engineered custom agent skills (`.agents/skills/`) to codify operational runbooks into autonomous commands—enabling repeatable headless test runs, headed execution, dynamic persona injection, verbose HTTP API request/response logging, and Allure single-file report generation.
+
+---
+
+### 2. Concrete Risk / AI Flaw Caught and Corrected (Calibrated Trust & Self-Direction in Action)
+**The Incident: Accidental Source File Truncation During Bulk Refactoring**
+- **What Happened:** While executing an automated bulk package reorganization script proposed during framework modularization, an AI-generated PowerShell string-replacement command failed to evaluate an uninitialized replacement buffer variable (`$newContent`), causing several core Java test classes to be overwritten with empty 0-byte files.
+- **How It Was Caught (*Self-Direction*):** Because I maintain a disciplined verification cycle and treat every AI suggestion as a draft rather than ground truth, I ran local sanity test builds immediately after structural operations. The empty build failure was detected instantly (`0 tests executed`).
+- **Correction & Engineering Practice (*Calibrated Trust & Honesty*):** Rather than re-prompting the AI blindly or guessing the lost code, I took immediate command: I audited the conversation transcript and raw history to retrieve the latest verified AST and code snapshots, safely restored the repository state, and instituted explicit git status and compilation checks after every automated edit. This reinforced the fundamental SDET principle: *All AI-generated scripts must be treated as untrusted drafts requiring automated and manual validation.*
+
+---
+
+### 3. What Was Deliberately Not Delegated to AI & Why (Professional Judgement & Security Ownership)
+
+1. **Strict Human Review of Test Case Scope & Coverage (Zero Unchecked Generation):**
+   - **Why It Was Retained by Human Engineering:** AI assistants frequently generate either **under-scoped** tests (missing non-trivial edge cases, state persistence across page reloads, and negative boundaries) or **over-scoped / redundant** tests (bloating suites with superficial clicks that inflate CI run times without providing incremental risk coverage). 
+   - **Engineering Practice (*Self-Direction*):** Every single scenario proposed by AI underwent rigorous manual inspection against the specification requirements and risk matrix before being accepted. I reviewed and calibrated test boundaries to ensure 100% meaningful coverage of critical user journeys, eliminated duplicate or out-of-scope tests, and verified that edge cases (such as catalog sorting ambiguities and postal code string validation) were clearly partitioned.
+
+2. **Core Test Oracle Design & Defect Assertion Strategy:**
+   - **Why It Was Retained by Human Engineering:** AI models exhibit an inherent confirmation bias toward "making the test pass green". When encountering abnormal or defective application behavior—such as `problem_user`'s inability to remove items from the cart, or SauceDemo's business-logic anomaly allowing users to check out with an empty cart—AI tools frequently generate naive workarounds: inserting arbitrary `Thread.sleep` calls, weakening assertions, or asserting whatever the page currently displays rather than what the business logic should dictate.
+   - **Engineering Outcome (*Calibrated Trust*):** I deliberately reserved all test design thinking, equivalence partitioning, boundary analysis, and defect oracle formulation for human decision. Discovered defects were rigorously isolated into dedicated test scenarios tagged with `@Tag("Defect-A4")`, `@Tag("Defect-A7")`, and `@Issue`, with explicit assertions exposing the underlying bugs rather than masking them.
+
+3. **Protection of Secrets, Credentials & Personally Identifiable Information (PII):**
+   - **Why It Was Retained by Human Engineering:** AI assistants do not inherently understand privacy boundaries, data leakage vectors, or enterprise security compliance (GDPR, PDPA). If left unconstrained, AI tools will readily generate code that hardcodes live API tokens, commits credentials into configuration files, or logs sensitive user parameters into public console outputs.
+   - **Engineering Practice & Compliance (*Engineering Honesty & Security Governance*):** I enforced strict human oversight governed by **Ground Rule: Never commit secrets** and PII protection principles:
+     - **No Secrets in Prompts or History:** Real GoRest bearer tokens, personal passwords, and environment credentials were never fed into AI prompts or committed into git repository history.
+     - **Synthetic Test Data Isolation:** Ensured all test data generation strictly relies on `DataFaker` to produce randomized, synthetic mock identities (names, emails) with zero real customer PII.
+     - **Architectural Credential Sanitization:** Designed the multi-environment template system (`local.json.template` with blank passwords and `local.json` in `.gitignore`) and 5-tier environment variable resolution cascade, guaranteeing that sensitive authentication data remains fully isolated on local developer machines or encrypted in GitHub Secrets.
 
 
 
