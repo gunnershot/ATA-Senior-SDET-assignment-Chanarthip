@@ -1,5 +1,6 @@
 # Secrets
 .env
+ui-tests/src/test/resources/env/local.json
 
 # Build output
 target/

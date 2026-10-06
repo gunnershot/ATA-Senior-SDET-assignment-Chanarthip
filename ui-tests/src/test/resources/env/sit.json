@@ -1,0 +1,25 @@
+{
+  "environment": "sit",
+  "browser": "chromium",
+  "headless": true,
+  "slowMo": 0,
+  "baseUrl": "https://sit.saucedemo.com",
+  "defaultTimeoutMs": 10000,
+  "performanceTimeoutMs": 10000,
+  "targetUser": "standard_user",
+  "users": {
+    "standard_user": {
+      "username": "sit_standard_user"
+    },
+    "locked_out_user": {
+      "username": "sit_locked_out_user"
+    },
+    "problem_user": {
+      "username": "sit_problem_user"
+    },
+    "performance_glitch_user": {
+      "username": "sit_performance_glitch_user"
+    }
+  }
+}
+

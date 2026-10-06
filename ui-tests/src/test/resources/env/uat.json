@@ -1,0 +1,25 @@
+{
+  "environment": "uat",
+  "browser": "chromium",
+  "headless": true,
+  "slowMo": 0,
+  "baseUrl": "https://uat.saucedemo.com",
+  "defaultTimeoutMs": 10000,
+  "performanceTimeoutMs": 10000,
+  "targetUser": "standard_user",
+  "users": {
+    "standard_user": {
+      "username": "uat_standard_user"
+    },
+    "locked_out_user": {
+      "username": "uat_locked_out_user"
+    },
+    "problem_user": {
+      "username": "uat_problem_user"
+    },
+    "performance_glitch_user": {
+      "username": "uat_performance_glitch_user"
+    }
+  }
+}
+

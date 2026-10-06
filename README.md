@@ -395,6 +395,8 @@ Documented comprehensively in [`test-coverage/assumptions.md`](test-coverage/ass
 - **Assumption A4 (Empty Cart Checkout):** Classified as an observed application defect rather than intentional behavior.
 - **Assumption A5 (Whitespace Sanitization):** Form inputs lack `.trim()` sanitization, classified as an input validation defect.
 - **Assumption A6 (State Persistence):** Cart persistence across page reload (`F5`) is client-side and verified as an edge case.
+- **Assumption A7 (Postal Code Validation):** Arbitrary alphanumeric characters bypass validation, treated as an input validation defect.
+- **Assumption A8 (Multi-Environment & Secret Management):** Multi-environment (`local`, `sit`, `staging`, `uat`) architecture with dynamic resolution; zero committed secrets by resolving passwords via environment variables.
 
 ---
 

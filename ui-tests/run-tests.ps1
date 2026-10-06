@@ -69,7 +69,8 @@ param(
     [switch]$ReportOnly,
     [string]$ResultsDir = "",
     [switch]$NoOpen,
-    [int]$Threads       = 0
+    [int]$Threads       = 0,
+    [string]$Env        = "local"
 )
 
 $ErrorActionPreference = "Stop"
@@ -136,6 +137,11 @@ if (-not $ReportOnly) {
     $mvnArgs = @()
     if ($Clean) { $mvnArgs += "clean" }
     $mvnArgs += "test"
+
+    if ($Env -ne "") {
+        $mvnArgs += "-Denv=$Env"
+        Write-Host " Environment     : $Env" -ForegroundColor Cyan
+    }
 
     if ($Test -ne "") {
         $mvnArgs += "-Dtest=$Test"

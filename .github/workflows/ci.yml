@@ -32,9 +32,10 @@ on:
         type: choice
         options:
           - dev
+          - local
           - sit
+          - staging
           - uat
-          - prod
       enable_logs:
         description: 'Enable verbose HTTP INFO logs (default off)'
         required: false
@@ -76,10 +77,18 @@ jobs:
             if [[ -n "${{ github.event.inputs.environment }}" ]]; then
               ARGS="$ARGS -Denv=${{ github.event.inputs.environment }}"
             fi
+          else
+            ARGS="$ARGS -Denv=dev"
           fi
           echo "MAVEN_ARGS=$ARGS" >> $GITHUB_ENV
 
       - name: Run UI tests
+        env:
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+          DEV_SAUCE_PASSWORD: ${{ secrets.DEV_SAUCE_PASSWORD }}
+          SIT_SAUCE_PASSWORD: ${{ secrets.SIT_SAUCE_PASSWORD }}
+          STAGING_SAUCE_PASSWORD: ${{ secrets.STAGING_SAUCE_PASSWORD }}
+          UAT_SAUCE_PASSWORD: ${{ secrets.UAT_SAUCE_PASSWORD }}
         run: ./mvnw clean test $MAVEN_ARGS
 
       - name: Generate Single File Allure Report

@@ -64,3 +64,15 @@ This document catalogs all assumptions, surfaced ambiguities, and their correspo
 - **Engineering Assumption:** In standard e-commerce platforms, Postal/Zip Code input should enforce strict format/numeric validation rather than allowing any arbitrary string. We classify this as an observed format validation defect and assert actual behavior with `@Tag("Defect-A7")` and `@Issue("A7")`.
 - **Test Implementation:** Verified in `CheckoutTest#shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted` (UI-24).
 
+---
+
+### [Assumption A8] Multi-Environment Configuration & Secret Management
+- **Ambiguity:** The specification tests SauceDemo as a single target, but production enterprise test frameworks require seamless execution across environments (`local`, `dev`, `sit`, `staging`, `uat`).
+- **Engineering Assumption:**
+  1. Default local execution targets `local` (`https://www.saucedemo.com`). To prevent accidental credential leakage, `local.json` is added to `.gitignore`. A clean `local.json.template` is version-controlled so developers can customize their own credentials per machine. If `local.json` is not found, the framework gracefully falls back to `local.json.template`.
+  2. Non-local environments (`dev`, `sit`, `staging`, `uat`) isolate environment-specific URLs and usernames in separate JSON files (`src/test/resources/env/`).
+  3. In compliance with the **Ground Rule: Never commit secrets**, real credentials are never hardcoded in git. Passwords resolve dynamically via a 5-tier cascade (`${ENV}_${USER}_PASSWORD` -> `${USER}_PASSWORD` -> `${ENV}_SAUCE_PASSWORD` -> `SAUCE_PASSWORD` -> template default).
+- **Impact on Architecture:** Managed via `PlaywrightConfig`, `UserCredentials`, and `User` enum hierarchy, supporting dynamic switching via `-Env` (PowerShell), `-Denv` (Maven CLI), and GitHub Actions workflow inputs.
+
+
+

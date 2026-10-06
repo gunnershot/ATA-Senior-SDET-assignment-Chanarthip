@@ -42,6 +42,33 @@ The runner script `ui-tests/run-tests.ps1` manages runtime environment resolutio
 
 ---
 
+### Environment Configuration & Switching
+
+Switch environments dynamically (loads `src/test/resources/env/<env>.json`):
+
+- **Run on Default Environment (`local` - points to real SauceDemo):**
+  ```powershell
+  cd ui-tests
+  .\run-tests.ps1
+  ```
+
+- **Run on CI/CD Default (`dev`) or Remote Target Environments (`sit`, `staging`, `uat`):**
+  ```powershell
+  cd ui-tests
+  .\run-tests.ps1 -Env "dev"
+  .\run-tests.ps1 -Env "sit"
+  .\run-tests.ps1 -Env "staging"
+  .\run-tests.ps1 -Env "uat"
+  ```
+
+- **Via Maven Wrapper CLI:**
+  ```powershell
+  cd ui-tests
+  .\mvnw.cmd test -Denv=sit
+  ```
+
+---
+
 ### Filtering Tests
 
 - **Run by Test Class:**

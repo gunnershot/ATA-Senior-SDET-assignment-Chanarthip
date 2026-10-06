@@ -1,0 +1,28 @@
+{
+  "environment": "local",
+  "browser": "chromium",
+  "headless": true,
+  "slowMo": 0,
+  "baseUrl": "https://www.saucedemo.com",
+  "defaultTimeoutMs": 10000,
+  "performanceTimeoutMs": 10000,
+  "targetUser": "standard_user",
+  "users": {
+    "standard_user": {
+      "username": "standard_user",
+      "password": ""
+    },
+    "locked_out_user": {
+      "username": "locked_out_user",
+      "password": ""
+    },
+    "problem_user": {
+      "username": "problem_user",
+      "password": ""
+    },
+    "performance_glitch_user": {
+      "username": "performance_glitch_user",
+      "password": ""
+    }
+  }
+}
