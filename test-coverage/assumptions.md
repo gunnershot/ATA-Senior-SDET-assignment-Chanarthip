@@ -54,3 +54,12 @@ This document catalogs all assumptions, surfaced ambiguities, and their correspo
 - **Observed Behavior:** Cart state is persisted in client storage across page refreshes (`F5`), but does not synchronize across separate browser profiles.
 - **Engineering Assumption:** User sessions must maintain state within the same `BrowserContext` across page reloads, but different tests must run in isolated `BrowserContext` instances to guarantee zero state leakage.
 - **Test Implementation:** Verified in `CartTest#shouldPersistCartItemsAfterPageRefresh`.
+
+---
+
+### [Assumption A7] Postal Code Format Validation (Validation Defect)
+- **Ambiguity:** The specification does not define whether Postal Code accepts only numeric characters or arbitrary alphanumeric strings.
+- **Observed Behavior:** Entering purely alphabetic or arbitrary string characters (e.g. `"ABCDE"`) into the Postal Code field bypasses client-side format validation and allows the user to proceed to the overview page.
+- **Engineering Assumption:** In standard e-commerce platforms, Postal/Zip Code input should enforce strict format/numeric validation rather than allowing any arbitrary string. We classify this as an observed format validation defect and assert actual behavior with `@Tag("Defect-A7")` and `@Issue("A7")`.
+- **Test Implementation:** Verified in `CheckoutTest#shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted` (UI-24).
+

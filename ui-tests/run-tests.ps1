@@ -172,7 +172,7 @@ if (-not $ReportOnly) {
     }
 
     if ($Test -eq "" -and $Tag -eq "") {
-        Write-Host " Target Suite    : All 23 Scenarios across 6 Test Classes" -ForegroundColor Yellow
+        Write-Host " Target Suite    : All 27 Scenarios across 6 Test Classes" -ForegroundColor Yellow
     }
     Write-Host ""
 

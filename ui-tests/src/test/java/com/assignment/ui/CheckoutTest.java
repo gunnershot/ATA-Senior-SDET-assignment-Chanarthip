@@ -335,4 +335,26 @@ class CheckoutTest extends BaseTest {
         assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
         Allure.step("DISCOVERED DEFECT [A5]: Whitespace-only strings ('   ') bypass required validation on checkout");
     }
+
+    @Test
+    @Tag("UI-24")
+    @Tag("Edge")
+    @Tag("P1")
+    @Tag("Regression")
+    @Tag("Defect-A7")
+    @Issue("A7")
+    @Story("Postal Code Format Validation")
+    @Severity(SeverityLevel.MINOR)
+    @DisplayName("[UI-24] Should document observed defect where non-numeric postal code (\"ABCDE\") bypasses validation to overview page (Defect A7)")
+    void shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted() {
+        CartPage cart = cartWith(Product.BACKPACK);
+        CheckoutInfoPage infoPage = cart.checkout();
+
+        infoPage.fill(new CheckoutInfo("John", "Doe", "ABCDE"));
+        infoPage.continueToOverview();
+
+        // Specific observed behavior: Non-numeric postal code string bypasses format validation
+        assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
+        Allure.step("DISCOVERED DEFECT [A7]: Non-numeric postal code ('ABCDE') bypasses format validation and allows proceeding to checkout overview");
+    }
 }

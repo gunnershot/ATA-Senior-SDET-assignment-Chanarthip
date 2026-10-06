@@ -294,7 +294,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **23 automated scenarios** across 6 feature classes:
+The suite covers **27 automated scenarios** across 6 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -315,12 +315,16 @@ The suite covers **23 automated scenarios** across 6 feature classes:
 | **UI-15** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
 | **UI-16** | `CheckoutTest` | `shouldNavigateBackToCartAndPreserveItemsWhenCancelingAtInformationStep` | Edge | P1 | Canceling checkout information step returns user to `/cart.html` with cart items intact. | ✅ PASS |
 | **UI-17** | `CheckoutTest` | `shouldDisplayRequiredValidationErrorWhenAnyCheckoutFieldIsMissing` | Negative | P1 | Validates First Name, Last Name, and Postal Code sequentially. | ✅ PASS |
-| **UI-18** | `CheckoutTest` | `shouldVerifySystemPermitsCheckoutWhenCartIsEmpty` | Defect / Boundary | P1 | **Observed Defect A4:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
-| **UI-19** | `CheckoutTest` | `shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A5:** Whitespace (`"   "`) bypasses required field check. | ✅ PASS (Defect Asserted) |
-| **UI-20** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P1 | **Observed Defect:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
-| **UI-21** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P1 | **Observed Defect:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
+| **UI-18** | `CheckoutTest` | `shouldVerifySystemPermitsCheckoutWhenCartIsEmpty` | Defect / Boundary | P1 | **Observed Defect A4 / DEF-03:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
+| **UI-19** | `CheckoutTest` | `shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A5 / DEF-04:** Whitespace (`"   "`) bypasses required field check. | ✅ PASS (Defect Asserted) |
+| **UI-20** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P0 | **Observed Defect DEF-01:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
+| **UI-21** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P0 | **Observed Defect DEF-02:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
 | **UI-22** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
 | **UI-23** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingInventoryItemName` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
+| **UI-24** | `CheckoutTest` | `shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A7 / DEF-06:** Non-numeric postal code (`"ABCDE"`) bypasses format validation. | ✅ PASS (Defect Asserted) |
+| **UI-25** | `ProblemUserTest` | `shouldDocumentBrokenProductImagesWhenProblemUserViewsCatalog` | Diagnostic | P2 | **Observed Defect DEF-05:** Catalog images display fallback 404 dog asset (`sl-404.168b1cce.jpg`). | ✅ PASS (Defect Asserted) |
+| **UI-26** | `ProblemUserTest` | `shouldDocumentWrongProductNavigationWhenProblemUserClicksItemName` | Diagnostic | P0 | **Observed Defect DEF-07:** Clicking Backpack title link opens Fleece Jacket details. | ✅ PASS (Defect Asserted) |
+| **UI-27** | `ProblemUserTest` | `shouldDocumentAddLimitDefectWhenProblemUserAttemptsToAddAllCatalogItems` | Diagnostic | P1 | **Observed Defect DEF-08:** Add to cart fails after 3 items; cart capped at 3 items. | ✅ PASS (Defect Asserted) |
 
 ---
 
@@ -329,20 +333,16 @@ The suite covers **23 automated scenarios** across 6 feature classes:
 The assignment brief instructs:
 > *"Write assertions that are specific to the behaviour you observed. Do not use broad retries, Thread.sleep or weak assertions to paper over a defect."*
 
-In accordance with this directive, defects are neither ignored nor masked. Strict assertions verify the exact anomalous state, accompanied by Allure diagnostic logs:
+In accordance with this directive, defects are neither ignored nor masked. Complete Jira-format bug reports and root cause analyses are documented in [`test-coverage/findings.md`](test-coverage/findings.md). Strict assertions verify the exact anomalous state across 8 discovered defects:
 
-1. **Defect UI-18 (Empty Cart Checkout Allowed):**
-   - *Expected:* Checkout should be blocked if the cart contains 0 items.
-   - *Observed & Asserted:* SauceDemo permits advancing through Overview to Complete ($0.00 total) without validation. Asserted strictly and tagged with `@Issue("A4")`.
-2. **Defect UI-19 (Whitespace Validation Bypass):**
-   - *Expected:* Pure whitespace (`"   "`) in required fields should trigger validation errors.
-   - *Observed & Asserted:* Whitespace bypasses validation and navigates to the Overview screen. Asserted and tagged with `@Issue("A5")`.
-3. **Defect UI-20 (`problem_user` Remove Button Defect):**
-   - *Expected:* Clicking "Remove" must remove the item and clear the cart badge.
-   - *Observed & Asserted:* On `problem_user`, the remove click handler fails silently; the badge remains permanently stuck at `"1"`.
-4. **Defect UI-21 (`problem_user` Input Misrouting):**
-   - *Expected:* First Name and Last Name inputs must accept independent values.
-   - *Observed & Asserted:* On `problem_user`, typing into `lastName` overwrites `firstName`, leaving `lastName` blank and triggering an `Error: Last Name is required`.
+1. **Defect DEF-01 (UI-20 - Broken Remove Button on Cart):** On `problem_user`, clicking "Remove" fails silently; badge remains permanently stuck at `"1"`.
+2. **Defect DEF-02 (UI-21 - Form Input Misrouting):** On `problem_user`, typing into `lastName` overwrites `firstName`, leaving `lastName` blank and triggering an `Error: Last Name is required`.
+3. **Defect DEF-03 (UI-18 - Empty Cart Checkout Allowed):** SauceDemo permits advancing through Overview to Complete ($0.00 total) without empty cart validation. Tagged with `@Issue("A4")`.
+4. **Defect DEF-04 (UI-19 - Whitespace Validation Bypass):** Whitespace (`"   "`) bypasses validation without `.trim()`, advancing user directly to Overview. Tagged with `@Issue("A5")`.
+5. **Defect DEF-05 (UI-25 - Broken Product Image Links):** On `problem_user`, all catalog product images point to the 404 dog error placeholder asset (`sl-404.168b1cce.jpg`).
+6. **Defect DEF-06 (UI-24 - Non-Numeric Postal Code Accepted):** Non-numeric strings (e.g. `"ABCDE"`) bypass format validation and successfully navigate to Overview. Tagged with `@Issue("A7")`.
+7. **Defect DEF-07 (UI-26 - Product Title Link Misdirection):** On `problem_user`, clicking the link for "Sauce Labs Backpack" incorrectly opens the details page of "Sauce Labs Fleece Jacket".
+8. **Defect DEF-08 (UI-27 - Partial Add-to-Cart Failure):** On `problem_user`, only 3 of the 6 items can be added to the cart; the remaining items fail to respond to click events.
 
 ---
 
