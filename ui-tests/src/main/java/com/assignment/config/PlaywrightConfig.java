@@ -50,7 +50,7 @@ public final class PlaywrightConfig {
         headless = Boolean.parseBoolean(override("headless", String.valueOf(headless)));
         slowMo = Integer.parseInt(override("slowMo", String.valueOf(slowMo)));
         baseUrl = override("baseUrl", baseUrl);
-        targetUser = override("targetUser", override("user", targetUser));
+        targetUser = override("targetUser", targetUser);
     }
 
     private static String override(String key, String current) {

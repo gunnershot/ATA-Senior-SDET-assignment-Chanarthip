@@ -22,6 +22,8 @@ The provided `starter-kit/ci-broken.yml` file contained several issues that prev
    * *Fix:* Passed `-Dheadless=true` dynamically during CI UI test execution.
 8. **Missing API Secrets:** API test execution was missing the `GOREST_API_TOKEN` environment variable, causing immediate 401 Unauthorized failures.
    * *Fix:* Mapped `GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}` via GitHub Action Secrets.
+9. **Environment Variable Collision:** UI tests failed with `Unknown user: runner` because `PlaywrightConfig` attempted to map the native OS environment variable `USER` to SauceDemo accounts via a generic `user` property override fallback.
+   * *Fix:* Removed the `override("user", ...)` fallback in `PlaywrightConfig.java`, forcing the test suite to rely exclusively on the namespaced `targetUser` property.
 
 ---
 
@@ -35,3 +37,4 @@ Yes. Configuration context is critical. For instance, without explicitly definin
 
 **3. Do you fail builds properly instead of masking failures?**
 Yes. Masking failures is a critical anti-pattern in CI/CD. The starter file contained `mvn clean test || true` for the UI suite, which forces the shell to return a successful exit code (0) regardless of the test outcome. I immediately removed `|| true`. A CI pipeline must be a reliable gatekeeper; if an assertion fails (like the observed defects tested in `problem_user`), the build must legitimately fail and block downstream deployment.
+
