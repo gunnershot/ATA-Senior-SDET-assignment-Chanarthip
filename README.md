@@ -85,9 +85,11 @@ ATA-Senior-SDET-assignment-Chanarthip/
 │   │       ├── java/com/assignment/ui/     # Test Execution Layer
 │   │       │   ├── LoginTest.java          # UI-01 to UI-06 (Happy, Negative, Boundary, Edge)
 │   │       │   ├── CartTest.java           # UI-07 to UI-11 (Add, Remove, State Retention)
-│   │       │   ├── CheckoutTest.java       # UI-12 to UI-19 (E2E, Catalog Integrity, PDF, Validation, Defects)
-│   │       │   ├── ProblemUserTest.java    # UI-20, UI-21 (Diagnostic Defect Assertions)
-│   │       │   └── PerformanceGlitchUserTest.java # UI-22 (Resilience & Latency SLA)
+│   │       │   ├── CheckoutTest.java       # UI-12 to UI-17, UI-21, DEF-03, DEF-04, DEF-06
+│   │       │   ├── PerformanceGlitchUserTest.java # UI-18 (Resilience & E2E Checkout Flow)
+│   │       │   ├── ProductDetailsTest.java # UI-19 (Navigation & Product Details)
+│   │       │   ├── CatalogTest.java        # UI-20 (Catalog Sorting Ambiguity)
+│   │       │   └── ProblemUserTest.java    # DEF-01, DEF-02, DEF-05, DEF-07, DEF-08 (Defect Showcase)
 │   │       └── resources/
 │   │           ├── playwright.json         # Environment Settings (Default: headless = true)
 │   │           └── junit-platform.properties# JUnit 5 Execution settings
@@ -315,10 +317,10 @@ The suite covers **21 automated scenarios** across 6 feature classes:
 | **UI-15** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
 | **UI-16** | `CheckoutTest` | `shouldNavigateBackToCartAndPreserveItemsWhenCancelingAtInformationStep` | Edge | P1 | Canceling checkout information step returns user to `/cart.html` with cart items intact. | ✅ PASS |
 | **UI-17** | `CheckoutTest` | `shouldDisplayRequiredValidationErrorWhenAnyCheckoutFieldIsMissing` | Negative | P1 | Validates First Name, Last Name, and Postal Code sequentially. | ✅ PASS |
-| **DEF-03** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
-| **DEF-04** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingInventoryItemName` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
-| **DEF-01** | `CatalogTest` | `shouldSortProductsDescendingByNameWhenZToAIsSelected` | Happy | P1 | Sorting Z-A correctly reorders catalog (Highlights algorithm ambiguity). | ✅ PASS |
-| **DEF-02** | `CheckoutTest` | `shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules` | Edge | P2 | System permits special characters in First and Last Name (Highlights validation ambiguity). | ✅ PASS |
+| **UI-18** | `PerformanceGlitchUserTest` | `shouldCompleteFullCheckoutFlowWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience / E2E | P1 | Validates that delayed login completes within 10-second SLA limit, adds product to cart, completes checkout, and receives order confirmation. | ✅ PASS |
+| **UI-19** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingItemNameFromInventory` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
+| **UI-20** | `CatalogTest` | `shouldSortProductsDescendingByNameWhenZToAIsSelected` | Happy | P1 | Sorting Z-A correctly reorders catalog (Highlights algorithm ambiguity). | ✅ PASS |
+| **UI-21** | `CheckoutTest` | `shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules` | Edge | P2 | System permits special characters in First and Last Name (Highlights validation ambiguity). | ✅ PASS |
 
 ---
 
