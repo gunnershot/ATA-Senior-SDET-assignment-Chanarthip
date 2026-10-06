@@ -42,3 +42,4 @@ class CatalogTest extends BaseTest {
         Allure.step("AMBIGUITY: Sorting algorithm (case-sensitive vs insensitive) and default tie-breaker logic are not specified.");
     }
 }
+

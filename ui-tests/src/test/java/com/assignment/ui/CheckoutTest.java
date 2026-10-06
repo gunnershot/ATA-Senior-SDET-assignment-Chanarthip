@@ -357,23 +357,24 @@ class CheckoutTest extends BaseTest {
         assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
         Allure.step("DISCOVERED DEFECT [A7]: Non-numeric postal code ('ABCDE') bypasses format validation and allows proceeding to checkout overview");
     }
+
     @Test
     @Tag("UI-29")
     @Tag("Edge")
     @Tag("P2")
     @Tag("Regression")
-    @Story("First Name Validation")
+    @Story("Name Validation")
     @Severity(SeverityLevel.TRIVIAL)
-    @DisplayName("[UI-29] Should allow special characters and numbers in First Name given unspecified validation rules (Ambiguity)")
-    void shouldAllowSpecialCharactersInFirstNameGivenUnspecifiedValidationRules() {
+    @DisplayName("[UI-29] Should allow special characters and numbers in First Name and Last Name given unspecified validation rules (Ambiguity)")
+    void shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules() {
         CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
 
-        infoPage.fill(new CheckoutInfo("John123!@#", "Doe", "12345"));
+        infoPage.fill(new CheckoutInfo("John123!@#", "Doe$%^987", "12345"));
         infoPage.continueToOverview();
 
-        // Observed behavior: Special characters are permitted. Marked as AMBIGUITY.
+        // Observed behavior: Special characters are permitted in both name fields. Marked as AMBIGUITY.
         assertThat(page).hasURL(Pattern.compile(".*/checkout-step-two\\.html$"));
-        Allure.step("AMBIGUITY: Allowed character sets for First Name are unspecified. System allows 'John123!@#'.");
+        Allure.step("AMBIGUITY: Allowed character sets for First and Last Name are unspecified. System allows 'John123!@#' and 'Doe$%^987'.");
     }
 }
