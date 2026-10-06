@@ -16,7 +16,7 @@ This document satisfies **Part 0: Test coverage and scenario design** and forms 
 
 ---
 
-## Scenario Matrix (22 Scenarios)
+## Scenario Matrix (29 Scenarios)
 
 | Scenario ID | Feature Area | Account | Input / Condition | Expected Outcome | Category | Priority | Automated Test Method |
 |---|---|---|---|---|---|:---:|---|

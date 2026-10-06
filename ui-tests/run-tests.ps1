@@ -35,7 +35,7 @@
 
 .EXAMPLE
     .\run-tests.ps1
-    Runs all 22 scenarios headlessly and generates the Allure single-file report.
+    Runs all 29 scenarios headlessly and generates the Allure single-file report.
 
 .EXAMPLE
     .\run-tests.ps1 -Threads 3

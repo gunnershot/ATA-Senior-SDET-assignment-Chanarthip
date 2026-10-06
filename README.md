@@ -294,7 +294,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **27 automated scenarios** across 6 feature classes:
+The suite covers **29 automated scenarios** across 6 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -325,6 +325,8 @@ The suite covers **27 automated scenarios** across 6 feature classes:
 | **UI-25** | `ProblemUserTest` | `shouldDocumentBrokenProductImagesWhenProblemUserViewsCatalog` | Diagnostic | P2 | **Observed Defect DEF-05:** Catalog images display fallback 404 dog asset (`sl-404.168b1cce.jpg`). | ✅ PASS (Defect Asserted) |
 | **UI-26** | `ProblemUserTest` | `shouldDocumentWrongProductNavigationWhenProblemUserClicksItemName` | Diagnostic | P0 | **Observed Defect DEF-07:** Clicking Backpack title link opens Fleece Jacket details. | ✅ PASS (Defect Asserted) |
 | **UI-27** | `ProblemUserTest` | `shouldDocumentAddLimitDefectWhenProblemUserAttemptsToAddAllCatalogItems` | Diagnostic | P1 | **Observed Defect DEF-08:** Add to cart fails after 3 items; cart capped at 3 items. | ✅ PASS (Defect Asserted) |
+| **UI-28** | `CatalogTest` | `shouldSortProductsDescendingByNameWhenZToAIsSelected` | Happy | P1 | Sorting Z-A correctly reorders catalog (Highlights algorithm ambiguity). | ✅ PASS |
+| **UI-29** | `CheckoutTest` | `shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules` | Edge | P2 | System permits special characters in First and Last Name (Highlights validation ambiguity). | ✅ PASS |
 
 ---
 
