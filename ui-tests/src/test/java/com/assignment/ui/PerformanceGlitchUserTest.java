@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PerformanceGlitchUserTest extends BaseTest {
 
     @Test
-    @Tag("UI-22")
+    @Tag("UI-18")
     @Tag("Resilience")
     @Tag("P1")
     @Tag("Regression")
     @Story("Performance Glitch Handling")
     @Severity(SeverityLevel.NORMAL)
-    @DisplayName("[UI-22] Should successfully reach inventory within 10-second SLA threshold when performance_glitch_user logs in")
+    @DisplayName("[UI-18] Should successfully reach inventory within 10-second SLA threshold when performance_glitch_user logs in")
     void shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn() {
         long startTime = System.currentTimeMillis();
 
@@ -40,7 +40,7 @@ class PerformanceGlitchUserTest extends BaseTest {
         long durationMs = System.currentTimeMillis() - startTime;
         double timeoutThresholdMs = CONFIG.getPerformanceTimeoutMs();
 
-        System.out.printf("[UI-22] performance_glitch_user login completed in %d ms (threshold: %.0f ms)%n",
+        System.out.printf("[UI-18] performance_glitch_user login completed in %d ms (threshold: %.0f ms)%n",
                 durationMs, timeoutThresholdMs);
 
         assertTrue(durationMs < timeoutThresholdMs,
@@ -48,3 +48,4 @@ class PerformanceGlitchUserTest extends BaseTest {
                         durationMs, timeoutThresholdMs));
     }
 }
+

@@ -286,7 +286,8 @@ class CheckoutTest extends BaseTest {
     // =========================================================================
 
     @Test
-    @Tag("UI-18")
+    @Tag("DEF-03")
+    @Tag("Not-run")
     @Tag("Boundary")
     @Tag("P1")
     @Tag("Regression")
@@ -294,7 +295,7 @@ class CheckoutTest extends BaseTest {
     @Issue("A4")
     @Story("Empty Cart Boundary")
     @Severity(SeverityLevel.NORMAL)
-    @DisplayName("[UI-18] Should document observed defect where system permits completing checkout with an empty cart (Defect A4)")
+    @DisplayName("[DEF-03] Should document observed defect where system permits completing checkout with an empty cart (Defect A4)")
     void shouldVerifySystemPermitsCheckoutWhenCartIsEmpty() {
         login();
         CartPage cart = new CartPage(page);
@@ -315,7 +316,8 @@ class CheckoutTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-19")
+    @Tag("DEF-04")
+    @Tag("Not-run")
     @Tag("Edge")
     @Tag("P1")
     @Tag("Regression")
@@ -323,7 +325,7 @@ class CheckoutTest extends BaseTest {
     @Issue("A5")
     @Story("Whitespace Input Validation")
     @Severity(SeverityLevel.MINOR)
-    @DisplayName("[UI-19] Should document observed defect where whitespace-only fields bypass validation to overview page (Defect A5)")
+    @DisplayName("[DEF-04] Should document observed defect where whitespace-only fields bypass validation to overview page (Defect A5)")
     void shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted() {
         CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
@@ -337,7 +339,8 @@ class CheckoutTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-24")
+    @Tag("DEF-06")
+    @Tag("Not-run")
     @Tag("Edge")
     @Tag("P1")
     @Tag("Regression")
@@ -345,7 +348,7 @@ class CheckoutTest extends BaseTest {
     @Issue("A7")
     @Story("Postal Code Format Validation")
     @Severity(SeverityLevel.MINOR)
-    @DisplayName("[UI-24] Should document observed defect where non-numeric postal code (\"ABCDE\") bypasses validation to overview page (Defect A7)")
+    @DisplayName("[DEF-06] Should document observed defect where non-numeric postal code (\"ABCDE\") bypasses validation to overview page (Defect A7)")
     void shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted() {
         CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
@@ -359,13 +362,13 @@ class CheckoutTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-29")
+    @Tag("UI-21")
     @Tag("Edge")
     @Tag("P2")
     @Tag("Regression")
     @Story("Name Validation")
     @Severity(SeverityLevel.TRIVIAL)
-    @DisplayName("[UI-29] Should allow special characters and numbers in First Name and Last Name given unspecified validation rules (Ambiguity)")
+    @DisplayName("[UI-21] Should allow special characters and numbers in First Name and Last Name given unspecified validation rules (Ambiguity)")
     void shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules() {
         CartPage cart = cartWith(Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
@@ -378,3 +381,4 @@ class CheckoutTest extends BaseTest {
         Allure.step("AMBIGUITY: Allowed character sets for First and Last Name are unspecified. System allows 'John123!@#' and 'Doe$%^987'.");
     }
 }
+

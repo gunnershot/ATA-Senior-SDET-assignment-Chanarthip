@@ -22,14 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProductDetailsTest extends BaseTest {
 
     @Test
-    @Tag("UI-23")
+    @Tag("UI-19")
     @Tag("Happy")
     @Tag("P0")
     @Tag("Smoke")
     @Tag("Regression")
     @Story("Product Details View")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-23] Should navigate to product details and display matching name, description, and price when clicking item name")
+    @DisplayName("[UI-19] Should navigate to product details and display matching name, description, and price when clicking item name")
     void shouldDisplayAccurateProductDetailsWhenClickingItemNameFromInventory() {
         Product targetProduct = Product.BACKPACK;
 
@@ -56,4 +56,5 @@ class ProductDetailsTest extends BaseTest {
         assertThat(returnedInventory.inventoryList()).isVisible();
     }
 }
+
 

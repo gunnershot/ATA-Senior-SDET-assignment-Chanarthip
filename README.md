@@ -294,7 +294,7 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
-The suite covers **29 automated scenarios** across 6 feature classes:
+The suite covers **21 automated scenarios** across 6 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
 |---|---|---|---|:---:|---|:---:|
@@ -315,18 +315,10 @@ The suite covers **29 automated scenarios** across 6 feature classes:
 | **UI-15** | `CheckoutTest` | `shouldGenerateAndVerifyOrderPdfReceiptUponCheckoutCompletion` | Integration / PDF | P1 | Validates PDF generation, downloads receipt via Playwright, parses text via PDFBox, and asserts customer details, items, and totals match order. | ✅ PASS |
 | **UI-16** | `CheckoutTest` | `shouldNavigateBackToCartAndPreserveItemsWhenCancelingAtInformationStep` | Edge | P1 | Canceling checkout information step returns user to `/cart.html` with cart items intact. | ✅ PASS |
 | **UI-17** | `CheckoutTest` | `shouldDisplayRequiredValidationErrorWhenAnyCheckoutFieldIsMissing` | Negative | P1 | Validates First Name, Last Name, and Postal Code sequentially. | ✅ PASS |
-| **UI-18** | `CheckoutTest` | `shouldVerifySystemPermitsCheckoutWhenCartIsEmpty` | Defect / Boundary | P1 | **Observed Defect A4 / DEF-03:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
-| **UI-19** | `CheckoutTest` | `shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A5 / DEF-04:** Whitespace (`"   "`) bypasses required field check. | ✅ PASS (Defect Asserted) |
-| **UI-20** | `ProblemUserTest` | `shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem` | Diagnostic | P0 | **Observed Defect DEF-01:** `problem_user` Remove button fails to decrement badge. | ✅ PASS (Defect Asserted) |
-| **UI-21** | `ProblemUserTest` | `shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation` | Diagnostic | P0 | **Observed Defect DEF-02:** `problem_user` Last Name input routes into First Name field. | ✅ PASS (Defect Asserted) |
-| **UI-22** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
-| **UI-23** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingInventoryItemName` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
-| **UI-24** | `CheckoutTest` | `shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted` | Defect / Edge | P1 | **Observed Defect A7 / DEF-06:** Non-numeric postal code (`"ABCDE"`) bypasses format validation. | ✅ PASS (Defect Asserted) |
-| **UI-25** | `ProblemUserTest` | `shouldDocumentBrokenProductImagesWhenProblemUserViewsCatalog` | Diagnostic | P2 | **Observed Defect DEF-05:** Catalog images display fallback 404 dog asset (`sl-404.168b1cce.jpg`). | ✅ PASS (Defect Asserted) |
-| **UI-26** | `ProblemUserTest` | `shouldDocumentWrongProductNavigationWhenProblemUserClicksItemName` | Diagnostic | P0 | **Observed Defect DEF-07:** Clicking Backpack title link opens Fleece Jacket details. | ✅ PASS (Defect Asserted) |
-| **UI-27** | `ProblemUserTest` | `shouldDocumentAddLimitDefectWhenProblemUserAttemptsToAddAllCatalogItems` | Diagnostic | P1 | **Observed Defect DEF-08:** Add to cart fails after 3 items; cart capped at 3 items. | ✅ PASS (Defect Asserted) |
-| **UI-28** | `CatalogTest` | `shouldSortProductsDescendingByNameWhenZToAIsSelected` | Happy | P1 | Sorting Z-A correctly reorders catalog (Highlights algorithm ambiguity). | ✅ PASS |
-| **UI-29** | `CheckoutTest` | `shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules` | Edge | P2 | System permits special characters in First and Last Name (Highlights validation ambiguity). | ✅ PASS |
+| **DEF-03** | `PerformanceGlitchUserTest` | `shouldCompleteLoginWithinSlaThresholdWhenPerformanceGlitchUserLogsIn` | Resilience | P1 | Validates that delayed login completes within 10-second SLA limit. | ✅ PASS |
+| **DEF-04** | `ProductDetailsTest` | `shouldDisplayAccurateProductDetailsWhenClickingInventoryItemName` | Happy | P0 | Clicking product title opens `/inventory-item.html?id=4` and accurately displays Name, Description, and Price. | ✅ PASS |
+| **DEF-01** | `CatalogTest` | `shouldSortProductsDescendingByNameWhenZToAIsSelected` | Happy | P1 | Sorting Z-A correctly reorders catalog (Highlights algorithm ambiguity). | ✅ PASS |
+| **DEF-02** | `CheckoutTest` | `shouldAllowSpecialCharactersInNameFieldsGivenUnspecifiedValidationRules` | Edge | P2 | System permits special characters in First and Last Name (Highlights validation ambiguity). | ✅ PASS |
 
 ---
 
@@ -337,14 +329,30 @@ The assignment brief instructs:
 
 In accordance with this directive, defects are neither ignored nor masked. Complete Jira-format bug reports and root cause analyses are documented in [`test-coverage/findings.md`](test-coverage/findings.md). Strict assertions verify the exact anomalous state across 8 discovered defects:
 
-1. **Defect DEF-01 (UI-20 - Broken Remove Button on Cart):** On `problem_user`, clicking "Remove" fails silently; badge remains permanently stuck at `"1"`.
-2. **Defect DEF-02 (UI-21 - Form Input Misrouting):** On `problem_user`, typing into `lastName` overwrites `firstName`, leaving `lastName` blank and triggering an `Error: Last Name is required`.
-3. **Defect DEF-03 (UI-18 - Empty Cart Checkout Allowed):** SauceDemo permits advancing through Overview to Complete ($0.00 total) without empty cart validation. Tagged with `@Issue("A4")`.
-4. **Defect DEF-04 (UI-19 - Whitespace Validation Bypass):** Whitespace (`"   "`) bypasses validation without `.trim()`, advancing user directly to Overview. Tagged with `@Issue("A5")`.
-5. **Defect DEF-05 (UI-25 - Broken Product Image Links):** On `problem_user`, all catalog product images point to the 404 dog error placeholder asset (`sl-404.168b1cce.jpg`).
-6. **Defect DEF-06 (UI-24 - Non-Numeric Postal Code Accepted):** Non-numeric strings (e.g. `"ABCDE"`) bypass format validation and successfully navigate to Overview. Tagged with `@Issue("A7")`.
-7. **Defect DEF-07 (UI-26 - Product Title Link Misdirection):** On `problem_user`, clicking the link for "Sauce Labs Backpack" incorrectly opens the details page of "Sauce Labs Fleece Jacket".
-8. **Defect DEF-08 (UI-27 - Partial Add-to-Cart Failure):** On `problem_user`, only 3 of the 6 items can be added to the cart; the remaining items fail to respond to click events.
+1. **Defect DEF-01 (DEF-01 - Broken Remove Button on Cart):** On `problem_user`, clicking "Remove" fails silently; badge remains permanently stuck at `"1"`.
+2. **Defect DEF-02 (DEF-02 - Form Input Misrouting):** On `problem_user`, typing into `lastName` overwrites `firstName`, leaving `lastName` blank and triggering an `Error: Last Name is required`.
+3. **Defect DEF-03 (DEF-03 - Empty Cart Checkout Allowed):** SauceDemo permits advancing through Overview to Complete ($0.00 total) without empty cart validation. Tagged with `@Issue("A4")`.
+4. **Defect DEF-04 (DEF-04 - Whitespace Validation Bypass):** Whitespace (`"   "`) bypasses validation without `.trim()`, advancing user directly to Overview. Tagged with `@Issue("A5")`.
+5. **Defect DEF-05 (DEF-05 - Broken Product Image Links):** On `problem_user`, all catalog product images point to the 404 dog error placeholder asset (`sl-404.168b1cce.jpg`).
+6. **Defect DEF-06 (DEF-06 - Non-Numeric Postal Code Accepted):** Non-numeric strings (e.g. `"ABCDE"`) bypass format validation and successfully navigate to Overview. Tagged with `@Issue("A7")`.
+7. **Defect DEF-07 (DEF-07 - Product Title Link Misdirection):** On `problem_user`, clicking the link for "Sauce Labs Backpack" incorrectly opens the details page of "Sauce Labs Fleece Jacket".
+8. **Defect DEF-08 (DEF-08 - Partial Add-to-Cart Failure):** On `problem_user`, only 3 of the 6 items can be added to the cart; the remaining items fail to respond to click events.
+
+### Defect Showcase (Observed Defects & Diagnostics)
+
+This table isolates the explicit assertion tests designed to capture application defects across both standard_user and problem_user.
+
+| ID | Class | Method | Category | Priority | Expected Outcome | Result |
+|---|---|---|---|:---:|---|:---:|
+| **DEF-03** | CheckoutTest | shouldVerifySystemPermitsCheckoutWhenCartIsEmpty | Defect / Boundary | P1 | **Observed Defect A4 / DEF-03:** Application allows $0.00 checkout on empty cart. | ✅ PASS (Defect Asserted) |
+| **DEF-04** | CheckoutTest | shouldVerifyWhitespaceInputBypassesValidationWhenSubmitted | Defect / Edge | P1 | **Observed Defect A5 / DEF-04:** Whitespace bypasses required field check. | ✅ PASS (Defect Asserted) |
+| **DEF-01** | ProblemUserTest | shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem | Diagnostic | P1 | **DEF-01:** Remove button event listener fails to update DOM/state. | ✅ PASS (Defect Asserted) |
+| **DEF-02** | ProblemUserTest | shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation | Diagnostic | P1 | **DEF-02:** Form input routing miswired (lastName overwrites firstName). | ✅ PASS (Defect Asserted) |
+| **DEF-06** | CheckoutTest | shouldVerifyNonNumericPostalCodeBypassesValidationWhenSubmitted | Defect / Edge | P1 | **Observed Defect A7 / DEF-06:** Non-numeric postal code bypasses format validation. | ✅ PASS (Defect Asserted) |
+| **DEF-05** | ProblemUserTest | shouldDocumentBrokenProductImagesWhenProblemUserViewsCatalog | Diagnostic | P2 | **DEF-05:** Product card images are broken (404 fallback). | ✅ PASS (Defect Asserted) |
+| **DEF-07** | ProblemUserTest | shouldDocumentWrongProductNavigationWhenProblemUserClicksItemName | Diagnostic | P0 | **DEF-07:** Clicking item erroneously navigates to wrong details page. | ✅ PASS (Defect Asserted) |
+| **DEF-08** | ProblemUserTest | shouldDocumentAddLimitDefectWhenProblemUserAttemptsToAddAllCatalogItems | Diagnostic | P1 | **DEF-08:** Add to cart fails after 3 items on problem_user. | ✅ PASS (Defect Asserted) |
+
 
 ---
 
@@ -386,6 +394,37 @@ Documented comprehensively in [`test-coverage/assumptions.md`](test-coverage/ass
 - **Assumption A5 (Whitespace Sanitization):** Form inputs lack `.trim()` sanitization, classified as an input validation defect.
 - **Assumption A6 (State Persistence):** Cart persistence across page reload (`F5`) is client-side and verified as an edge case.
 
+---
+
+## Part 2: API Automation Tests
+
+The API test suite (pi-tests) validates the GoRest API using **REST Assured** and **JUnit 5**, focusing on robust HTTP client architecture and dynamic state management.
+
+### Directory Structure
+`
+api-tests/
+├── src/
+│   ├── main/java/com/assignment/api/
+│   │   ├── base/
+│   │   │   └── BaseApiTest.java        # RestAssured config, token injection, Auth management
+│   │   ├── clients/
+│   │   │   └── UserClient.java         # API Routing (GET, POST, PUT, DELETE) & HTTP abstraction
+│   │   ├── models/
+│   │   │   ├── UserRequest.java        # Jackson POJO for request payloads
+│   │   │   └── UserResponse.java       # Jackson POJO for response mapping and assertions
+│   │   └── utils/
+│   │       └── DataFaker.java          # Dynamic test data generation (Faker)
+│   └── test/java/com/assignment/api/
+│       └── UserCrudTest.java           # Comprehensive CRUD operations & boundary coverage
+`
+
+### Key Architectural Characteristics
+1. **Model-Driven Payloads:** Raw JSON strings are completely avoided. We use Jackson POJOs (UserRequest, UserResponse) to enforce strict type safety and structured assertions.
+2. **Client Abstraction:** Test classes like UserCrudTest never execute raw HTTP calls. They invoke declarative methods from UserClient (e.g. client.createUser(payload)).
+3. **Idempotency & Isolation:** 
+   - Uses DataFaker to generate unique email addresses dynamically, preventing database collision during parallel test runs.
+   - All tests track created entities in a thread-safe list. The @AfterEach lifecycle hook iterates and issues DELETE requests to purge the environment, ensuring tests do not leak state or pollute the API database.
+
 ## Part 3: CI/CD Pipeline Fixes & Extensions
 
 The `starter-kit/ci-broken.yml` file contained several issues that prevented the pipeline from running correctly and reliably reporting test results. The following bugs were identified and fixed:
@@ -422,5 +461,8 @@ The `starter-kit/ci-broken.yml` file contained several issues that prevented the
 
 - **What Was Deliberately Not Delegated:**  
   I deliberately did not delegate the core test design thinking, equivalence partitioning, or the defect assertion strategy. AI tools exhibit a strong bias toward generating naive happy paths, adding arbitrary `Thread.sleep` to paper over timing issues, or using weak assertions to make tests pass green. Designing strict, non-flaky assertions for defective states—such as `problem_user`'s broken remove button and SauceDemo's empty-cart checkout allowance—required intentional human engineering judgment.
+
+
+
 
 

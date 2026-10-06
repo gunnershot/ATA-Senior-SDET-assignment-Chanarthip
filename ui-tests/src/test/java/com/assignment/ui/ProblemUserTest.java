@@ -19,14 +19,15 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 class ProblemUserTest extends BaseTest {
 
     @Test
-    @Tag("UI-20")
+    @Tag("DEF-01")
+    @Tag("Not-run")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-01")
     @Story("Problem User Cart Defect")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-20] Should document diagnostic defect where clicking remove fails to decrement badge for problem_user")
+    @DisplayName("[DEF-01] Should document diagnostic defect where clicking remove fails to decrement badge for problem_user")
     void shouldDocumentBrokenRemoveButtonWhenProblemUserAttemptsToRemoveItem() {
         InventoryPage inventory = loginAs(User.PROBLEM).add(Product.BACKPACK);
         assertThat(inventory.cartBadge()).hasText("1");
@@ -40,14 +41,15 @@ class ProblemUserTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-21")
+    @Tag("DEF-02")
+    @Tag("Not-run")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-02")
     @Story("Problem User Form Defect")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-21] Should document diagnostic defect where typing last name misroutes and overwrites first name for problem_user")
+    @DisplayName("[DEF-02] Should document diagnostic defect where typing last name misroutes and overwrites first name for problem_user")
     void shouldDocumentFormInputMisroutingWhenProblemUserSubmitsCheckoutInformation() {
         CartPage cart = cartWith(User.PROBLEM, Product.BACKPACK);
         CheckoutInfoPage infoPage = cart.checkout();
@@ -67,14 +69,15 @@ class ProblemUserTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-25")
+    @Tag("DEF-05")
+    @Tag("Not-run")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-03")
     @Story("Problem User Catalog Image Defect")
     @Severity(SeverityLevel.MINOR)
-    @DisplayName("[UI-25] Should document diagnostic defect where catalog product images display 404 fallback dog image for problem_user (DEF-05)")
+    @DisplayName("[DEF-05] Should document diagnostic defect where catalog product images display 404 fallback dog image for problem_user (DEF-05)")
     void shouldDocumentBrokenProductImagesWhenProblemUserViewsCatalog() {
         loginAs(User.PROBLEM);
         com.microsoft.playwright.Locator images = page.locator("img.inventory_item_img");
@@ -91,14 +94,15 @@ class ProblemUserTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-26")
+    @Tag("DEF-07")
+    @Tag("Not-run")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-04")
     @Story("Problem User Navigation Defect")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-26] Should document diagnostic defect where clicking Backpack title navigates to Fleece Jacket details for problem_user (DEF-07)")
+    @DisplayName("[DEF-07] Should document diagnostic defect where clicking Backpack title navigates to Fleece Jacket details for problem_user (DEF-07)")
     void shouldDocumentWrongProductNavigationWhenProblemUserClicksItemName() {
         InventoryPage inventory = loginAs(User.PROBLEM);
         com.assignment.pages.ProductDetailsPage details = inventory.openProductDetails(Product.BACKPACK);
@@ -109,14 +113,15 @@ class ProblemUserTest extends BaseTest {
     }
 
     @Test
-    @Tag("UI-27")
+    @Tag("DEF-08")
+    @Tag("Not-run")
     @Tag("Diagnostic")
     @Tag("P1")
     @Tag("Regression")
     @Issue("SAUCE-PROBLEM-USER-05")
     @Story("Problem User Add to Cart Limitation")
     @Severity(SeverityLevel.CRITICAL)
-    @DisplayName("[UI-27] Should document diagnostic defect where problem_user can only add 3 of 6 items to cart (DEF-08)")
+    @DisplayName("[DEF-08] Should document diagnostic defect where problem_user can only add 3 of 6 items to cart (DEF-08)")
     void shouldDocumentAddLimitDefectWhenProblemUserAttemptsToAddAllCatalogItems() {
         InventoryPage inventory = loginAs(User.PROBLEM);
         inventory.addAll();
@@ -128,3 +133,4 @@ class ProblemUserTest extends BaseTest {
         Allure.step("DISCOVERED DEFECT [DEF-08]: problem_user is limited to adding only 3 of 6 items to cart.");
     }
 }
+

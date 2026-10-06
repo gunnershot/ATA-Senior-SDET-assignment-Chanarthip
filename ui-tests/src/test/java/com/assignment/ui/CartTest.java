@@ -113,3 +113,4 @@ class CartTest extends BaseTest {
         assertThat(inventory.removeButton(Product.BACKPACK)).isVisible();
     }
 }
+

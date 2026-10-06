@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CatalogTest extends BaseTest {
 
     @Test
-    @Tag("UI-28")
+    @Tag("UI-20")
     @Tag("Happy")
     @Tag("P1")
     @Tag("Regression")
     @Story("Catalog Sorting")
     @Severity(SeverityLevel.NORMAL)
-    @DisplayName("[UI-28] Should sort products descending by name when 'Name (Z to A)' is selected (Ambiguity)")
+    @DisplayName("[UI-20] Should sort products descending by name when 'Name (Z to A)' is selected (Ambiguity)")
     void shouldSortProductsDescendingByNameWhenZToAIsSelected() {
         InventoryPage inventory = login();
         
@@ -42,4 +42,5 @@ class CatalogTest extends BaseTest {
         Allure.step("AMBIGUITY: Sorting algorithm (case-sensitive vs insensitive) and default tie-breaker logic are not specified.");
     }
 }
+
 

@@ -144,6 +144,9 @@ if (-not $ReportOnly) {
 
     if ($Tag -ne "") {
         $mvnArgs += "-Dgroups=$Tag"
+        if ($Tag -match 'Not-run' -or $Tag -match 'DEF-') {
+            $mvnArgs += "-DexcludedGroups=DummyGroupToClearExclusion"
+        }
         Write-Host " Filter [Tag]    : $Tag" -ForegroundColor Yellow
     }
 
@@ -172,7 +175,7 @@ if (-not $ReportOnly) {
     }
 
     if ($Test -eq "" -and $Tag -eq "") {
-        Write-Host " Target Suite    : All 27 Scenarios across 6 Test Classes" -ForegroundColor Yellow
+        Write-Host " Target Suite    : All 21 Scenarios across 6 Test Classes" -ForegroundColor Yellow
     }
     Write-Host ""
 
