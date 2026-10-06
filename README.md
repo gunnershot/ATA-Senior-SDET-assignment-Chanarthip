@@ -331,6 +331,13 @@ ui-tests/allure-report/index.html
 
 ## Test Coverage & Scenario Matrix
 
+**Scenario Selection Rationale:** 
+The 21 automated scenarios were deliberately chosen based on a risk-based testing strategy. Our primary objective was to ensure complete confidence in the critical path (login, catalog browsing, cart management, and checkout) while maintaining a fast, resilient feedback loop. Scenarios cover:
+- **E2E / Happy Paths (P0):** Verifying the core business flows using `standard_user`.
+- **Negative / Boundary (P0-P1):** Validating authentication rejections, empty fields, and strict arithmetic accuracy.
+- **Resilience / Non-Functional (P1):** Ensuring the system recovers and completes within SLA thresholds (e.g., `performance_glitch_user` latency limits).
+- **Defect / Edge Cases (P1-P2):** Explicitly targeting and asserting known, observed application anomalies (e.g., empty cart checkout, broken images, whitespace bypasses) to prove the framework catches real bugs.
+
 The suite covers **21 automated scenarios** across 6 feature classes:
 
 | ID | Class | Method | Category | Priority | Expected Outcome | Result |
@@ -454,17 +461,50 @@ api-tests/
 │   │   └── utils/
 │   │       └── DataFaker.java          # Dynamic test data generation (Faker)
 │   └── test/java/com/assignment/api/
-│       └── UserCrudTest.java           # Comprehensive CRUD operations & boundary coverage
+│       └── tests/
+│           └── UserApiTests.java       # Comprehensive CRUD operations & boundary coverage
 ```
 
 ### Key Architectural Characteristics
 1. **Model-Driven Payloads:** Raw JSON strings are completely avoided. We use Jackson POJOs (`UserRequest`, `UserResponse`) to enforce strict type safety and structured assertions.
-2. **Client Abstraction:** Test classes like `UserCrudTest` never execute raw HTTP calls. They invoke declarative methods from `UserClient` (e.g. `client.createUser(payload)`).
+2. **Client Abstraction:** Test classes like `UserApiTests` never execute raw HTTP calls. They invoke declarative methods from `UserClient` (e.g. `client.createUser(payload)`).
 3. **Idempotency & Isolation:** 
    - Uses `DataFaker` to generate unique email addresses dynamically, preventing database collision during parallel test runs.
    - All tests track created entities in a thread-safe list. The `@AfterEach` lifecycle hook iterates and issues DELETE requests to purge the environment, ensuring tests do not leak state or pollute the API database.
 
+### API Test Coverage Matrix
+
+**Scenario Selection Rationale:**
+The 16 API test scenarios were selected to guarantee robustness of the core Data layer (GoRest API) through a combination of black-box testing techniques:
+- **Core CRUD (Happy Path):** Ensures the primary business logic (Create, Read, Update, Delete) functions correctly across all valid state combinations (e.g., parameterized testing of gender and status).
+- **Validation & Data Integrity (Negative Path):** Validates the API's contract strictness by forcing duplicate records, invalid data formats, and omitted required fields, ensuring the API returns appropriate HTTP statuses (e.g., `422 Unprocessable Entity`) rather than system crashes.
+- **Security & Authorization (Security Path):** Explicitly verifies the API's authentication boundaries by attempting to mutate state with missing or invalid Bearer tokens (`401 Unauthorized`), while verifying that public `GET` endpoints remain open.
+- **Contract & Schema Testing:** Validates that response bodies consistently adhere to expected JSON Schemas.
+
+The suite covers **16 automated API scenarios** addressing CRUD operations, boundary conditions, negative responses, and security validation:
+
+| ID | Endpoint | Description | Category |
+|---|---|---|---|
+| **API-01** | `POST /users` | Create user with all valid gender and status combinations | Happy |
+| **API-02** | `GET /users/{id}` | Get user successfully | Happy |
+| **API-03** | `PUT /users/{id}` | Update user successfully | Happy |
+| **API-04** | `DELETE /users/{id}`| Delete user successfully (`204`) | Happy |
+| **API-05** | `POST /users` | Error on duplicate email (`422`) | Negative |
+| **API-06** | `POST /users` | Error on missing authentication token (`401`) | Negative / Security |
+| **API-07** | `GET /users/{id}` | Error on non-existent user (`404`) | Negative |
+| **API-08** | `PUT /users/{id}` | Error on invalid data format (`422`) | Negative |
+| **API-09** | `POST /users` | Create a user with invalid data combinations (`422`) | Negative |
+| **API-10** | `GET /users` | Get all users (Default format & JSON Schema Validation) | Happy |
+| **API-11** | `GET /users` | Get users with pagination (`page`, `per_page`) | Happy |
+| **API-12** | `GET /users` | Get users filtered by gender and status | Happy |
+| **API-13** | `POST /users` | Create user with missing required field (`422`) | Negative |
+| **API-14** | `POST /users` | Error on invalid authentication token (`401`) | Negative / Security |
+| **API-15** | `GET /users` | Get all public users without authentication token | Happy / Security |
+| **API-16** | `GET /users/{id}` | Get public user by ID without authentication token | Happy / Security |
+
 ## Part 3: CI/CD Pipeline Fixes & Extensions
+
+> **Successful CI/CD Run:** [View the passing GitHub Actions Workflow Run](https://github.com/gunnershot/ATA-Senior-SDET-assignment-Chanarthip/actions/runs/37449376572)
 
 The `starter-kit/ci-broken.yml` file contained several issues that prevented the pipeline from running correctly and reliably reporting test results. The following bugs were identified and fixed:
 
@@ -545,3 +585,21 @@ In this assignment, AI was utilized not as an unchecked code generator, but as a
 
 
 
+
+---
+
+## Future Enhancements: What I Would Do Differently With More Time
+
+Given additional time and resources, I would extend the framework to further elevate its enterprise readiness and shift testing further left:
+
+1. **Visual Regression Testing (VRT):**
+   - Integrate Playwright's native visual comparisons (`toHaveScreenshot()`) to automatically detect unexpected UI regressions, styling drift, and broken layouts across different resolutions, beyond functional DOM assertions.
+2. **Cross-Browser Grid & Device Emulation (Matrix Execution):**
+   - Expand the CI pipeline to run a matrix execution across WebKit (Safari), Firefox, and mobile viewport emulation (e.g., iPhone 13 Pro, Pixel 7) to guarantee responsive design integrity and cross-platform compatibility.
+3. **CI/CD Quality Gates & ChatOps Integration:**
+   - Integrate automated test failure notifications directly into team communication channels (Slack/Microsoft Teams) containing deep links to the attached Allure Report and Playwright Traces.
+   - Implement strict PR quality gates blocking merges if critical E2E tests fail.
+4. **Behavior-Driven Development (BDD):**
+   - Transition the framework to support Cucumber `.feature` files. This would bridge the communication gap between product owners, business analysts, and SDETs, allowing non-technical stakeholders to review test scenarios written in plain Gherkin language.
+5. **Advanced Data-Driven Testing (DDT):**
+   - Extend the test architecture to consume extensive combinatorial test data directly from external sources (CSV/Database) to drastically increase coverage for diverse negative edge cases without duplicating code.

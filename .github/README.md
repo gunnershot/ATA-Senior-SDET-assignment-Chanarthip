@@ -1,5 +1,7 @@
 # Part 3: CI/CD Pipeline Fixes & Extensions
 
+> **Successful CI/CD Run:** [View the passing GitHub Actions Workflow Run](https://github.com/gunnershot/ATA-Senior-SDET-assignment-Chanarthip/actions/runs/37449376572)
+
 This directory contains the GitHub Actions workflow (`ci.yml`) used to automatically execute the UI and API test suites.
 
 ## Bugs Found in the Starter File and Fixes
