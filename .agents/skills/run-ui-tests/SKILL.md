@@ -100,6 +100,16 @@ Switch environments dynamically (loads `src/test/resources/env/<env>.json`):
   .\run-tests.ps1 -Tag "Resilience"
   ```
 
+- **Exclude Specific Tags (via -ExcludeTag):**
+  ```powershell
+  cd ui-tests
+  # Run regression tests excluding slow or performance-intensive tests
+  .\run-tests.ps1 -Tag "Regression" -ExcludeTag "Resilience"
+
+  # Run all tests excluding edge cases
+  .\run-tests.ps1 -ExcludeTag "Edge"
+  ```
+
 ---
 
 ### Defect Showcase & Diagnostic Tests

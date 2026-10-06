@@ -247,6 +247,9 @@ The included `run-tests.ps1` runner automatically wires the bundled JDK/Maven, e
 # Run by priority or category tag (e.g. P0, P1, Happy, Negative, Diagnostic)
 .\run-tests.ps1 -Tag "P0"
 
+# Exclude specific tags (e.g. exclude Edge cases or slow tests)
+.\run-tests.ps1 -Tag "Regression" -ExcludeTag "Edge"
+
 # Dynamic User Injection (Showcase defect detection by injecting problem_user)
 .\run-tests.ps1 -Test "CheckoutTest#shouldCalculateAccurateSubtotalAndTaxForFullCatalogCheckout" -User "problem_user"
 

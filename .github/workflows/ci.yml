@@ -20,6 +20,11 @@ on:
         description: 'Test Tag (e.g. smoke, regression)'
         required: false
         type: string
+      exclude_tag:
+        description: 'Test Tag to exclude (e.g. flaky, defect)'
+        required: false
+        default: ''
+        type: string
       threads:
         description: 'Number of parallel threads'
         required: false
@@ -70,6 +75,9 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ -n "${{ github.event.inputs.tag }}" ]]; then
               ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
+            fi
+            if [[ -n "${{ github.event.inputs.exclude_tag }}" ]]; then
+              ARGS="$ARGS -DexcludedGroups=${{ github.event.inputs.exclude_tag }}"
             fi
             if [[ -n "${{ github.event.inputs.threads }}" ]]; then
               ARGS="$ARGS -DforkCount=${{ github.event.inputs.threads }}"
@@ -131,6 +139,9 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ -n "${{ github.event.inputs.tag }}" ]]; then
               ARGS="$ARGS -Dgroups=${{ github.event.inputs.tag }}"
+            fi
+            if [[ -n "${{ github.event.inputs.exclude_tag }}" ]]; then
+              ARGS="$ARGS -DexcludedGroups=${{ github.event.inputs.exclude_tag }}"
             fi
             if [[ -n "${{ github.event.inputs.threads }}" ]]; then
               ARGS="$ARGS -Djunit.jupiter.execution.parallel.enabled=true -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${{ github.event.inputs.threads }}"

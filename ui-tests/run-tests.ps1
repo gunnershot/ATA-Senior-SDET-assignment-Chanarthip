@@ -62,6 +62,7 @@
 param(
     [string]$Test       = "",
     [string]$Tag        = "",
+    [string]$ExcludeTag = "",
     [string]$Browser    = "",
     [string]$User       = "",
     [switch]$Headed,
@@ -154,6 +155,11 @@ if (-not $ReportOnly) {
             $mvnArgs += "-DexcludedGroups=DummyGroupToClearExclusion"
         }
         Write-Host " Filter [Tag]    : $Tag" -ForegroundColor Yellow
+    }
+
+    if ($ExcludeTag -ne "") {
+        $mvnArgs += "-DexcludedGroups=$ExcludeTag"
+        Write-Host " Exclude [Tag]   : $ExcludeTag" -ForegroundColor Yellow
     }
 
     if ($Browser -ne "") {

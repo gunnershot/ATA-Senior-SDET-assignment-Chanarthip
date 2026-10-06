@@ -69,6 +69,10 @@ The API test suite runs with JUnit 5 Jupiter and REST Assured, utilizing thread-
 
   # Core regression suite
   .\mvnw.cmd test -Dgroups="Regression"
+
+  # Exclude specific tags (e.g. exclude Security tests or Defect tests)
+  .\mvnw.cmd test -DexcludedGroups="Security"
+  .\mvnw.cmd test -Dgroups="Regression" -DexcludedGroups="Security"
   ```
 
 ---
