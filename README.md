@@ -366,6 +366,14 @@ In accordance with this directive, defects are neither ignored nor masked. Compl
    - Automatically captures full-page screenshot saved to `target/screenshots/<testName>-failure.png` and attaches PNG screenshot + Playwright trace ZIP directly to the Allure report.
    - On passing tests, traces are cleanly stopped without writing to disk, minimizing CI storage footprint.
 
+6. **API Layered Architecture & Reusability (Part 2):**
+   - **Base Layer (`BaseApiTest`):** Centralizes RestAssured configuration, environment variables, and authentication (`GOREST_API_TOKEN`). Test methods never deal with raw token injection.
+   - **Client Layer (`UserClient`):** Encapsulates HTTP routing and methods (GET, POST, PUT, DELETE) so test classes remain clean and expressive.
+   - **Data/Model Layer:** Replaces raw JSON strings with Jackson POJOs (`UserRequest`, `UserResponse`) for strict type safety and field-level assertions.
+7. **Dynamic API Test Data & Idempotent Teardown:**
+   - **DataFaker:** Every test dynamically generates unique user payloads (Names, Emails) to prevent collision in parallel execution.
+   - **State Isolation:** All created user IDs are tracked in a thread-safe list. The `@AfterEach` lifecycle hook iterates and issues `DELETE` requests to purge the environment, ensuring the database remains clean (Idempotency).
+
 ---
 
 ## Assumptions & Surfaced Ambiguities
